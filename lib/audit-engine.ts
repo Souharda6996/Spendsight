@@ -199,69 +199,99 @@ function checkRule3(
   const currentPlanLabel = toolData?.plans.find((p) => p.planId === plan)?.planLabel ?? plan;
   const alreadyHas = (t: AITool) => allTools.some((ti) => ti.tool === t);
 
+  // Helper to find the best fit plan for a target tool given a team size
+  const getBestFit = (targetTool: AITool) => {
+    const data = PRICING_DATA[targetTool];
+    // Filter for plans that have a price and meet minSeats
+    const viable = data.plans.filter(p => p.pricePerSeatPerMonth !== null && (p.minSeats ?? 0) <= seats);
+    if (viable.length === 0) return null;
+
+    // For teams > 5, prioritize 'Team' or 'Business' plans even if they aren't the absolute cheapest
+    if (seats >= 5) {
+      const teamPlan = viable.find(p => 
+        p.planLabel.toLowerCase().includes('team') || 
+        p.planLabel.toLowerCase().includes('business') ||
+        p.planLabel.toLowerCase().includes('org')
+      );
+      if (teamPlan) return teamPlan;
+    }
+
+    // Otherwise, pick the most feature-rich plan that is still cheaper than the current spend per seat
+    const spendPerSeat = monthlySpend / seats;
+    const cheaperViable = viable.filter(p => p.pricePerSeatPerMonth! < spendPerSeat);
+    if (cheaperViable.length === 0) return null;
+
+    return cheaperViable.reduce((best, p) => 
+      (p.pricePerSeatPerMonth ?? 0) > (best.pricePerSeatPerMonth ?? 0) ? p : best
+    );
+  };
+
   // useCase === 'coding' AND tool === 'chatgpt' → surface Cursor or GitHub Copilot
   if (useCase === 'coding' && tool === 'chatgpt') {
-    const alternateTool = !alreadyHas('cursor') ? 'cursor' : !alreadyHas('github-copilot') ? 'github-copilot' : null;
+    const alternateTool: AITool | null = !alreadyHas('cursor') ? 'cursor' : !alreadyHas('github-copilot') ? 'github-copilot' : null;
     if (alternateTool) {
-      const altData = PRICING_DATA[alternateTool];
-      const altCheapestPlan = altData.plans.find((p) => p.pricePerSeatPerMonth !== null)!;
-      const altCost = altCheapestPlan.pricePerSeatPerMonth! * seats;
-      const savings = monthlySpend - altCost;
-      if (savings > 10) {
-        return {
-          tool,
-          currentSpend: monthlySpend,
-          currentPlan: currentPlanLabel,
-          recommendation: 'switch',
-          recommendedTool: altData.label,
-          recommendedPlan: altCheapestPlan.planLabel,
-          monthlySavings: savings,
-          reason: `For coding-focused teams, ${altData.label} (${altCheapestPlan.planLabel}) is purpose-built with inline completions — saves $${savings.toFixed(0)}/mo vs ChatGPT.`,
-        };
+      const bestPlan = getBestFit(alternateTool);
+      if (bestPlan) {
+        const altCost = bestPlan.pricePerSeatPerMonth! * seats;
+        const savings = monthlySpend - altCost;
+        if (savings > 10) {
+          return {
+            tool,
+            currentSpend: monthlySpend,
+            currentPlan: currentPlanLabel,
+            recommendation: 'switch',
+            recommendedTool: PRICING_DATA[alternateTool].label,
+            recommendedPlan: bestPlan.planLabel,
+            monthlySavings: savings,
+            reason: `For coding-focused teams, ${PRICING_DATA[alternateTool].label} (${bestPlan.planLabel}) is purpose-built for engineering workflows — saves $${savings.toFixed(0)}/mo vs ChatGPT.`,
+          };
+        }
       }
     }
   }
 
-  // useCase === 'writing' AND tool === 'cursor' → surface Claude Pro
+  // useCase === 'writing' AND tool === 'cursor' → surface Claude
   if (useCase === 'writing' && tool === 'cursor') {
     if (!alreadyHas('claude')) {
-      const claudeData = PRICING_DATA['claude'];
-      const claudeProPlan = claudeData.plans.find((p) => p.planId === 'claude-pro')!;
-      const altCost = claudeProPlan.pricePerSeatPerMonth! * seats;
-      const savings = monthlySpend - altCost;
-      if (savings > 10) {
-        return {
-          tool,
-          currentSpend: monthlySpend,
-          currentPlan: currentPlanLabel,
-          recommendation: 'switch',
-          recommendedTool: claudeData.label,
-          recommendedPlan: claudeProPlan.planLabel,
-          monthlySavings: savings,
-          reason: `For writing-focused work, Claude Pro has superior long-form output quality vs Cursor — saves $${savings.toFixed(0)}/mo.`,
-        };
+      const bestPlan = getBestFit('claude');
+      if (bestPlan) {
+        const altCost = bestPlan.pricePerSeatPerMonth! * seats;
+        const savings = monthlySpend - altCost;
+        if (savings > 10) {
+          return {
+            tool,
+            currentSpend: monthlySpend,
+            currentPlan: currentPlanLabel,
+            recommendation: 'switch',
+            recommendedTool: PRICING_DATA['claude'].label,
+            recommendedPlan: bestPlan.planLabel,
+            monthlySavings: savings,
+            reason: `For writing-focused work, Claude (${bestPlan.planLabel}) has superior long-form output quality vs Cursor — saves $${savings.toFixed(0)}/mo.`,
+          };
+        }
       }
     }
   }
 
-  // useCase === 'coding' AND Anthropic API direct > $50 savings → surface Cursor Pro
+  // useCase === 'coding' AND Anthropic API direct > $50 savings → surface Cursor
   if (useCase === 'coding' && tool === 'anthropic-api') {
     if (!alreadyHas('cursor')) {
-      const cursorData = PRICING_DATA['cursor'];
-      const cursorProPlan = cursorData.plans.find((p) => p.planId === 'cursor-pro')!;
-      const altCost = cursorProPlan.pricePerSeatPerMonth! * seats;
-      const savings = monthlySpend - altCost;
-      if (savings > 50) {
-        return {
-          tool,
-          currentSpend: monthlySpend,
-          currentPlan: currentPlanLabel,
-          recommendation: 'switch',
-          recommendedTool: cursorData.label,
-          recommendedPlan: cursorProPlan.planLabel,
-          monthlySavings: savings,
-          reason: `Cursor Pro includes Claude access via a flat $${cursorProPlan.pricePerSeatPerMonth}/seat/mo — significantly cheaper than raw Anthropic API for coding workflows, saving $${savings.toFixed(0)}/mo.`,
-        };
+      const bestPlan = getBestFit('cursor');
+      if (bestPlan) {
+        const altCost = bestPlan.pricePerSeatPerMonth! * seats;
+        const savings = monthlySpend - altCost;
+        if (savings > 50) {
+          return {
+            tool,
+            currentSpend: monthlySpend,
+            currentPlan: currentPlanLabel,
+            recommendation: 'switch',
+            recommendedTool: PRICING_DATA['cursor'].label,
+            recommendedPlan: bestPlan.planLabel,
+            monthlySavings: savings,
+            reason: `Cursor (${bestPlan.planLabel}) includes Claude access via a flat monthly fee — significantly cheaper than direct API usage for coding, saving $${savings.toFixed(0)}/mo.`,
+          };
+        }
       }
     }
   }

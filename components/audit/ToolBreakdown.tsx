@@ -1,6 +1,17 @@
 'use client';
 import { ToolAuditResult } from '@/types';
 
+const TOOL_LOGOS: Record<string, string> = {
+  'cursor':         '/logos/cursor.png',
+  'github-copilot': '/logos/copilot.png',
+  'claude':         '/logos/claude.png',
+  'chatgpt':        '/logos/chatgpt.png',
+  'anthropic-api':  '/logos/claude.png',
+  'openai-api':     '/logos/chatgpt.png',
+  'gemini':         '/logos/gemini.png',
+  'windsurf':       '/logos/windsurf.png',
+};
+
 const TOOL_LABELS: Record<string, string> = {
   'cursor':         'Cursor',
   'github-copilot': 'GitHub Copilot',
@@ -31,11 +42,17 @@ export default function ToolBreakdown({ toolResults }: ToolBreakdownProps) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
             <div style={{ flex: 1 }}>
               <div style={{
-                fontFamily: 'var(--font-display)',
-                fontWeight: 700, fontSize: '15px',
-                color: 'var(--text-primary)', marginBottom: '4px',
+                display: 'flex', alignItems: 'center', gap: '10px',
+                marginBottom: '8px',
               }}>
-                {TOOL_LABELS[result.tool] ?? result.tool}
+                <img src={TOOL_LOGOS[result.tool]} alt="" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
+                <span style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 700, fontSize: '15px',
+                  color: 'var(--text-primary)',
+                }}>
+                  {TOOL_LABELS[result.tool] ?? result.tool}
+                </span>
               </div>
               <div style={{
                 fontSize: '13px', color: 'var(--text-secondary)',

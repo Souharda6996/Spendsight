@@ -60,7 +60,7 @@ export async function sendAuditEmail(params: {
   `;
 
   await resend.emails.send({
-    from: 'SpendSight <audit@spendsight.credex.rocks>',
+    from: 'SpendSight <onboarding@resend.dev>',
     to,
     subject: `SpendSight Audit: $${totalMonthlySavings.toFixed(0)}/mo Savings Identified`,
     html,

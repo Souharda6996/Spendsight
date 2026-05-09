@@ -38,6 +38,17 @@ const TOOL_LABELS: Record<AITool, string> = {
   'windsurf': 'Windsurf',
 };
 
+const TOOL_LOGOS: Record<AITool, string> = {
+  'cursor': '/logos/cursor.png',
+  'github-copilot': '/logos/copilot.png',
+  'claude': '/logos/claude.png',
+  'chatgpt': '/logos/chatgpt.png',
+  'anthropic-api': '/logos/claude.png',
+  'openai-api': '/logos/chatgpt.png',
+  'gemini': '/logos/gemini.png',
+  'windsurf': '/logos/windsurf.png',
+};
+
 const STORAGE_KEY = 'spendsight_form';
 
 const slideVariants = {
@@ -308,10 +319,15 @@ function StepTwo({
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '8px'
                 }}
               >
-                {isAdded ? '✓' : '+'} {TOOL_LABELS[tool]}
+                {isAdded ? (
+                  <span style={{ fontSize: '10px' }}>✓</span>
+                ) : (
+                  <img src={TOOL_LOGOS[tool]} alt="" style={{ width: '14px', height: '14px', objectFit: 'contain' }} />
+                )}
+                {TOOL_LABELS[tool]}
               </button>
             );
           })}
@@ -365,9 +381,20 @@ function StepThree({ apiError }: { apiError: string }) {
             border: '1px solid var(--border-subtle)',
             borderRadius: 'var(--radius-md)'
           }}>
-            <div>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{TOOL_LABELS[tool.tool as AITool]}</div>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{tool.seats} seat{tool.seats !== 1 ? 's' : ''}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ 
+                width: '32px', height: '32px', 
+                borderRadius: '8px', 
+                background: 'rgba(255,255,255,0.04)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '1px solid var(--border-subtle)'
+              }}>
+                <img src={TOOL_LOGOS[tool.tool as AITool]} alt="" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{TOOL_LABELS[tool.tool as AITool]}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{tool.seats} seat{tool.seats !== 1 ? 's' : ''}</div>
+              </div>
             </div>
             <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--accent)' }}>
               ${tool.monthlySpend.toFixed(0)}/mo

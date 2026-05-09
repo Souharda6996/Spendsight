@@ -19,6 +19,17 @@ const TOOL_LABELS: Record<AITool, string> = {
   'windsurf':       'Windsurf',
 };
 
+const TOOL_LOGOS: Record<AITool, string> = {
+  'cursor': '/logos/cursor.png',
+  'github-copilot': '/logos/copilot.png',
+  'claude': '/logos/claude.png',
+  'chatgpt': '/logos/chatgpt.png',
+  'anthropic-api': '/logos/claude.png',
+  'openai-api': '/logos/chatgpt.png',
+  'gemini': '/logos/gemini.png',
+  'windsurf': '/logos/windsurf.png',
+};
+
 export default function ToolRow({ index, onRemove }: ToolRowProps) {
   const { register, watch, setValue } = useFormContext();
 
@@ -52,9 +63,14 @@ export default function ToolRow({ index, onRemove }: ToolRowProps) {
       position: 'relative',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>
-          {tool ? TOOL_LABELS[tool] : 'Tool'}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {tool && (
+            <img src={TOOL_LOGOS[tool]} alt="" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
+          )}
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>
+            {tool ? TOOL_LABELS[tool] : 'Tool'}
+          </span>
+        </div>
         <button onClick={onRemove} type="button" style={{
           background: 'transparent', border: 'none', color: 'var(--text-muted)',
           cursor: 'pointer', fontSize: '20px', padding: '0 8px',

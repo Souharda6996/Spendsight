@@ -104,11 +104,11 @@ export default function HomePage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             {[
-              { name: 'Cursor', icon: '⬡', color: '#8B5CF6', delay: '0s', top: '8%', left: '20%', dur: '6s' },
-              { name: 'Claude', icon: '◈', color: '#E05A2B', delay: '1.2s', top: '5%', right: '10%', dur: '7s' },
-              { name: 'ChatGPT', icon: '◎', color: '#10A37F', delay: '0.6s', top: '45%', left: '5%', dur: '5.5s' },
-              { name: 'Copilot', icon: '◈', color: '#0078D4', delay: '1.8s', top: '55%', right: '5%', dur: '6.5s' },
-              { name: 'Gemini', icon: '◇', color: '#4285F4', delay: '0.9s', bottom: '10%', left: '30%', dur: '7.5s' },
+              { name: 'Cursor', icon: '/logos/cursor.png', color: '#8B5CF6', delay: '0s', top: '8%', left: '20%', dur: '6s' },
+              { name: 'Claude', icon: '/logos/claude.png', color: '#E05A2B', delay: '1.2s', top: '5%', right: '10%', dur: '7s' },
+              { name: 'ChatGPT', icon: '/logos/chatgpt.png', color: '#10A37F', delay: '0.6s', top: '45%', left: '5%', dur: '5.5s' },
+              { name: 'Copilot', icon: '/logos/copilot.png', color: '#0078D4', delay: '1.8s', top: '55%', right: '5%', dur: '6.5s' },
+              { name: 'Gemini', icon: '/logos/gemini.png', color: '#4285F4', delay: '0.9s', bottom: '10%', left: '30%', dur: '7.5s' },
             ].map((tool) => (
               <div key={tool.name} style={{
                 position: 'absolute',
@@ -129,7 +129,15 @@ export default function HomePage() {
                   boxShadow: '0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
                   whiteSpace: 'nowrap',
                 }}>
-                  <span style={{ fontSize: '18px', color: tool.color }}>{tool.icon}</span>
+                  <img 
+                    src={tool.icon} 
+                    alt="" 
+                    style={{ 
+                      width: '18px', height: '18px', 
+                      objectFit: 'contain',
+                      filter: tool.name === 'ChatGPT' ? 'brightness(1.2)' : 'none'
+                    }} 
+                  />
                   <span style={{
                     fontFamily: 'var(--font-body)',
                     fontSize: '13px',
