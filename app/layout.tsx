@@ -1,5 +1,28 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Syne, DM_Sans, JetBrains_Mono } from 'next/font/google';
+import Navbar from '@/components/ui/Navbar';
+
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['400', '700', '800'],
+  variable: '--font-syne',
+  display: 'swap',
+});
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['300', '400', '500'],
+  variable: '--font-dm',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-mono-var',
+  display: 'swap',
+});
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://spendsight.vercel.app';
 
@@ -30,20 +53,18 @@ export const metadata: Metadata = {
   },
 };
 
-import Navbar from '@/components/ui/Navbar';
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body>
+      <body className="antialiased">
         <Navbar />
         <div style={{ position: 'relative', zIndex: 1, paddingTop: '72px' }}>
           {children}

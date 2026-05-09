@@ -6,26 +6,19 @@ interface AISummaryProps {
 
 export function AISummary({ summary }: AISummaryProps) {
   return (
-    <div className="ai-card anim-fade-up delay-4">
-      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'16px'}}>
-        <p style={{
-          fontSize: '11px', fontWeight: 600,
-          letterSpacing: '0.12em', textTransform: 'uppercase',
-          color: 'var(--text-muted)', fontFamily: 'var(--font-mono)',
-        }}>AI Analysis</p>
-        <span style={{
-          fontSize: '11px', color: 'var(--text-muted)',
-          display: 'flex', alignItems: 'center', gap: '4px',
-        }}>
-          ✦ AI Generated
-        </span>
+    <div className="glass-card anim-fade-up" data-delay="2" style={{ padding: '28px', marginTop: '0' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px',
+      }}>
+        <div className="badge-accent">AI Summary</div>
       </div>
-
       <p style={{
-        color: 'var(--text-secondary)',
+        fontFamily: 'var(--font-body)',
         fontSize: '15px',
-        lineHeight: 1.75,
-        fontWeight: 300,
+        color: 'var(--text-secondary)',
+        lineHeight: '1.8',
+        margin: 0,
+        fontWeight: 400
       }}>
         {summary}
       </p>

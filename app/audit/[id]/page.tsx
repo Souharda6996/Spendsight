@@ -76,64 +76,100 @@ export default async function AuditPage({ params }: AuditPageProps) {
   const showCredexCTA = audit.totalMonthlySavings > 500;
 
   return (
-    <main style={{ maxWidth: '1100px', margin: '0 auto', padding: '2rem 1.5rem 6rem' }}>
-      {/* Nav */}
-      <nav style={{ marginBottom: '40px' }}>
-        <Link
-          href="/"
-          className="btn-ghost"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0', color: 'var(--accent)' }}
-        >
-          ← SpendSight
-        </Link>
-      </nav>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        {/* 1. Hero */}
-        <AuditHero
-          totalMonthlySavings={audit.totalMonthlySavings}
-          totalAnnualSavings={audit.totalAnnualSavings}
-        />
-
-        {/* 2. Main content grid */}
+    <div className="relative min-h-screen overflow-hidden" style={{ background: 'var(--bg-base)' }}>
+      {/* Mesh gradient orbs */}
+      <div aria-hidden="true" style={{
+        position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+      }}>
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '32px',
-        }}>
-          {/* Left Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <h2 className="display-sm" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '12px' }}>Tool Breakdown</h2>
-            <ToolBreakdown toolResults={audit.toolResults} />
-          </div>
+          position: 'absolute', top: '10%', right: '10%',
+          width: '600px', height: '600px',
+          background: 'radial-gradient(circle, rgba(0,200,150,0.12) 0%, transparent 70%)',
+          filter: 'blur(80px)',
+          borderRadius: '50%',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '20%', left: '5%',
+          width: '400px', height: '400px',
+          background: 'radial-gradient(circle, rgba(0,152,212,0.10) 0%, transparent 70%)',
+          filter: 'blur(100px)',
+          borderRadius: '50%',
+        }} />
+      </div>
 
-          {/* Right Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <h2 className="display-sm" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '12px' }}>Analysis & Actions</h2>
-            <AISummary summary={audit.aiSummary ?? ''} />
-            {showCredexCTA && <CredexCTA />}
-            
-            <div className="form-glass" style={{ padding: '32px', textAlign: 'center' }}>
-              <p style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '18px', color: 'var(--text-primary)', marginBottom: '16px' }}>
-                Keep a copy of your audit
-              </p>
-              <LeadCaptureModal
-                auditId={audit.id}
-                totalMonthlySavings={audit.totalMonthlySavings}
-              />
+      <main style={{ position: 'relative', zIndex: 10, maxWidth: '1100px', margin: '0 auto', padding: '2rem 1.5rem 6rem' }}>
+        {/* Nav */}
+        <nav style={{ marginBottom: '40px' }}>
+          <Link
+            href="/"
+            style={{ 
+              textDecoration: 'none', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              color: 'var(--accent)',
+              fontSize: '14px',
+              fontWeight: 500
+            }}
+          >
+            ← New Audit
+          </Link>
+        </nav>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          {/* 1. Hero */}
+          <AuditHero
+            totalMonthlySavings={audit.totalMonthlySavings}
+            totalAnnualSavings={audit.totalAnnualSavings}
+          />
+
+          {/* 2. Main content grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '32px',
+          }}>
+            {/* Left Column */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="badge-accent" style={{ alignSelf: 'flex-start' }}>Tool Breakdown</div>
+              <ToolBreakdown toolResults={audit.toolResults} />
             </div>
 
-            <ShareButton />
+            {/* Right Column */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="badge-accent" style={{ alignSelf: 'flex-start' }}>Analysis & Actions</div>
+              <AISummary summary={audit.aiSummary ?? ''} />
+              
+              {showCredexCTA && <CredexCTA />}
+              
+              <div className="glass-card" style={{ padding: '32px', textAlign: 'center' }}>
+                <h3 style={{ 
+                  fontFamily: 'var(--font-display)', 
+                  fontWeight: 700, 
+                  fontSize: '18px', 
+                  color: 'var(--text-primary)', 
+                  marginBottom: '16px' 
+                }}>
+                  Keep a copy of your audit
+                </h3>
+                <LeadCaptureModal
+                  auditId={audit.id}
+                  totalMonthlySavings={audit.totalMonthlySavings}
+                />
+              </div>
+
+              <ShareButton />
+            </div>
+          </div>
+
+          {/* Footer info */}
+          <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '32px', marginTop: '32px', textAlign: 'center' }}>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+              AUDIT_ID: {audit.id} &nbsp;·&nbsp; GENERATED: {new Date(audit.createdAt).toISOString()}
+            </p>
           </div>
         </div>
-
-        {/* Footer info */}
-        <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '32px', marginTop: '32px', textAlign: 'center' }}>
-          <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-            AUDIT_ID: {audit.id} &nbsp;·&nbsp; GENERATED: {new Date(audit.createdAt).toISOString()}
-          </p>
-        </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

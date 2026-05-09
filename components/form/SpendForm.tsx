@@ -41,9 +41,9 @@ const TOOL_LABELS: Record<AITool, string> = {
 const STORAGE_KEY = 'spendsight_form';
 
 const slideVariants = {
-  enter: (dir: number) => ({ x: dir > 0 ? 40 : -40, opacity: 0 }),
+  enter: (dir: number) => ({ x: dir > 0 ? 30 : -30, opacity: 0 }),
   center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: dir > 0 ? -40 : 40, opacity: 0 }),
+  exit: (dir: number) => ({ x: dir > 0 ? -30 : 30, opacity: 0 }),
 };
 
 export default function SpendForm() {
@@ -127,93 +127,90 @@ export default function SpendForm() {
 
   return (
     <FormProvider {...methods}>
-      <div className="form-glass" style={{ padding: '40px 44px', maxWidth: '680px', width: '100%', margin: '0 auto' }}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-          {/* Step indicator */}
-          <div className="step-indicator">
-            {['Team', 'Tools', 'Review'].map((label, idx) => {
-              const stepNum = idx + 1;
-              const isDone = step > stepNum;
-              const isActive = step === stepNum;
-              return (
-                <React.Fragment key={label}>
-                  {idx > 0 && <div className={`step-line ${step > idx ? 'done' : ''}`} />}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                    <div className={`step-dot ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`}>
-                      {isDone ? '✓' : stepNum}
-                    </div>
-                    <span style={{ fontSize: '11px', color: isActive ? 'var(--accent)' : 'var(--text-muted)', fontWeight: isActive ? 600 : 400 }}>
-                      {label}
-                    </span>
-                  </div>
-                </React.Fragment>
-              );
-            })}
-          </div>
+      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
+        {/* Step indicator */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '40px' }}>
+          {[1, 2, 3].map((s) => (
+            <div
+              key={s}
+              style={{
+                height: '4px',
+                flex: 1,
+                background: step >= s ? 'var(--accent)' : 'var(--border-subtle)',
+                borderRadius: '2px',
+                transition: 'background 0.4s var(--ease-out)',
+              }}
+            />
+          ))}
+        </div>
 
-          <div className="relative overflow-hidden">
-            <AnimatePresence custom={direction} mode="wait">
-              {step === 1 && (
-                <motion.div
-                  key="step1"
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
-                >
-                  <StepOne />
-                </motion.div>
-              )}
-
-              {step === 2 && (
-                <motion.div
-                  key="step2"
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
-                >
-                  <StepTwo fields={fields} addTool={addTool} remove={remove} />
-                </motion.div>
-              )}
-
-              {step === 3 && (
-                <motion.div
-                  key="step3"
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
-                >
-                  <StepThree apiError={apiError} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Navigation buttons */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '32px' }}>
-            {step > 1 && (
-              <button className="btn-ghost" onClick={handleBack} type="button">← Back</button>
+        <div className="relative overflow-hidden" style={{ minHeight: '340px' }}>
+          <AnimatePresence custom={direction} mode="wait">
+            {step === 1 && (
+              <motion.div
+                key="step1"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                <StepOne />
+              </motion.div>
             )}
-            <button
-              className="btn-primary"
-              style={{ marginLeft: 'auto' }}
-              onClick={step === 3 ? undefined : handleNext}
-              type={step === 3 ? 'submit' : 'button'}
-              disabled={methods.formState.isSubmitting}
-            >
-              {step === 3 ? (methods.formState.isSubmitting ? 'Running...' : 'Run My Audit →') : 'Next →'}
+
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                <StepTwo fields={fields} addTool={addTool} remove={remove} />
+              </motion.div>
+            )}
+
+            {step === 3 && (
+              <motion.div
+                key="step3"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                <StepThree apiError={apiError} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Navigation buttons */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--border-subtle)' }}>
+          {step > 1 ? (
+            <button className="btn-ghost" onClick={handleBack} type="button" style={{ paddingLeft: 0 }}>
+              ← Back
             </button>
-          </div>
-        </form>
-      </div>
+          ) : <div />}
+          
+          <button
+            className="btn-primary"
+            onClick={step === 3 ? undefined : handleNext}
+            type={step === 3 ? 'submit' : 'button'}
+            disabled={methods.formState.isSubmitting}
+            style={{ minWidth: '140px' }}
+          >
+            {step === 3 
+              ? (methods.formState.isSubmitting ? 'Running...' : 'Run Audit →') 
+              : 'Next Step →'}
+          </button>
+        </div>
+      </form>
     </FormProvider>
   );
 }
@@ -225,44 +222,48 @@ function StepOne() {
   const useCase = watch('useCase');
 
   return (
-    <div className="flex flex-col gap-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <div>
-        <h2 className="display-md" style={{ marginBottom: '6px' }}>Tell us about your team</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '15px' }}>
-          This calibrates the audit to your scale.
-        </p>
-      </div>
-
-      <div>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.02em' }}>
-          How big is your team?
-        </label>
+        <label className="input-label">How many people are on your team?</label>
         <input
           {...register('teamSize', { valueAsNumber: true })}
           type="number"
           className="input-field"
-          placeholder="e.g. 10"
+          placeholder="e.g. 12"
+          style={{ fontSize: '16px', padding: '14px 18px' }}
         />
         {errors.teamSize && (
-          <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{errors.teamSize.message}</p>
+          <p style={{ color: 'var(--accent)', fontSize: '11px', marginTop: '6px', fontWeight: 500 }}>{errors.teamSize.message}</p>
         )}
       </div>
 
       <div>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.02em' }}>
-          Primary use case?
-        </label>
-        <div className="segment-group" style={{ marginTop: '8px' }}>
-          {['Coding', 'Writing', 'Data', 'Research', 'Mixed'].map(uc => (
-            <button
-              key={uc}
-              className={`segment-pill ${useCase === uc.toLowerCase() ? 'active' : ''}`}
-              onClick={() => setValue('useCase', uc.toLowerCase() as FormValues['useCase'])}
-              type="button"
-            >
-              {uc}
-            </button>
-          ))}
+        <label className="input-label">What is your primary use case?</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '10px', marginTop: '12px' }}>
+          {['Coding', 'Writing', 'Data', 'Research', 'Mixed'].map(uc => {
+            const val = uc.toLowerCase() as FormValues['useCase'];
+            const isActive = useCase === val;
+            return (
+              <button
+                key={uc}
+                type="button"
+                onClick={() => setValue('useCase', val)}
+                style={{
+                  padding: '12px 10px',
+                  borderRadius: 'var(--radius-md)',
+                  background: isActive ? 'rgba(0,200,150,0.1)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${isActive ? 'var(--accent)' : 'var(--border-subtle)'}`,
+                  color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+                  fontSize: '13px',
+                  fontWeight: isActive ? 600 : 400,
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                }}
+              >
+                {uc}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -283,35 +284,55 @@ function StepTwo({
   const addedToolIds = watchedTools?.map((t) => t.tool) ?? [];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
-        <h2 className="display-md" style={{ marginBottom: '6px' }}>Which tools do you use?</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '15px' }}>
-          Add each tool and select your current plan.
-        </p>
+        <label className="input-label" style={{ marginBottom: '16px' }}>Select the tools you use</label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          {AVAILABLE_TOOLS.map(tool => {
+            const isAdded = addedToolIds.includes(tool);
+            return (
+              <button
+                key={tool}
+                type="button"
+                onClick={() => addTool(tool)}
+                disabled={isAdded}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '100px',
+                  background: isAdded ? 'rgba(0,200,150,0.1)' : 'transparent',
+                  border: `1px solid ${isAdded ? 'var(--accent)' : 'var(--border-subtle)'}`,
+                  color: isAdded ? 'var(--accent)' : 'var(--text-secondary)',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  cursor: isAdded ? 'default' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                {isAdded ? '✓' : '+'} {TOOL_LABELS[tool]}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
-        {AVAILABLE_TOOLS.map(tool => (
-          <button
-            key={tool}
-            className={`tool-chip ${addedToolIds.includes(tool) ? 'added' : ''}`}
-            onClick={() => addTool(tool)}
-            type="button"
-            disabled={addedToolIds.includes(tool)}
-          >
-            {addedToolIds.includes(tool) ? '✓' : '+'} {TOOL_LABELS[tool]}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex flex-col gap-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
         {fields.map((field, index) => (
           <ToolRow key={field.id} index={index} onRemove={() => remove(index)} />
         ))}
         {fields.length === 0 && (
-          <div className="glass-card p-8 text-center" style={{ color: 'var(--text-muted)' }}>
-            <p className="text-sm">No tools added yet. Click a chip above to get started.</p>
+          <div style={{ 
+            padding: '48px 24px', 
+            textAlign: 'center', 
+            background: 'rgba(255,255,255,0.02)', 
+            border: '1px dashed var(--border-subtle)',
+            borderRadius: 'var(--radius-lg)',
+            color: 'var(--text-muted)',
+            fontSize: '14px'
+          }}>
+            No tools added. Click a chip above to start.
           </div>
         )}
       </div>
@@ -324,48 +345,39 @@ function StepThree({ apiError }: { apiError: string }) {
   const data = getValues();
 
   return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <h2 className="display-md" style={{ marginBottom: '6px' }}>Review Audit</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '15px' }}>
-          Confirm your details before running the audit.
-        </p>
-      </div>
-
-      <div className="glass-card p-4 flex flex-col gap-2">
-        <div className="flex gap-4 text-sm">
-          <span style={{ color: 'var(--text-muted)' }}>Team size:</span>
-          <span style={{ color: 'var(--text-primary)' }}>{data.teamSize} people</span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Team Configuration</span>
+          <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>{data.teamSize} seats · {data.useCase}</span>
         </div>
-        <div className="flex gap-4 text-sm">
-          <span style={{ color: 'var(--text-muted)' }}>Use case:</span>
-          <span style={{ color: 'var(--text-primary)' }} className="capitalize">{data.useCase}</span>
+        <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+          {data.tools.length} tool{data.tools.length !== 1 ? 's' : ''} added to stack
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {data.tools.map((tool, i) => (
-          <div key={i} className="glass-card p-3 flex justify-between items-center text-sm">
-            <span style={{ color: 'var(--text-primary)' }}>
-              {TOOL_LABELS[tool.tool as AITool]}
-            </span>
-            <div className="flex items-center gap-4">
-              <span style={{ color: 'var(--text-muted)' }}>
-                {tool.seats} seat{tool.seats !== 1 ? 's' : ''}
-              </span>
-              <span style={{ color: 'var(--accent)' }}>
-                ${tool.monthlySpend.toFixed(0)}/mo
-              </span>
+          <div key={i} style={{ 
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '16px 20px', 
+            background: 'rgba(255,255,255,0.02)', 
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-md)'
+          }}>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{TOOL_LABELS[tool.tool as AITool]}</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{tool.seats} seat{tool.seats !== 1 ? 's' : ''}</div>
+            </div>
+            <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--accent)' }}>
+              ${tool.monthlySpend.toFixed(0)}/mo
             </div>
           </div>
         ))}
       </div>
 
       {apiError && (
-        <div
-          className="rounded-xl p-3 text-sm"
-          style={{ background: 'rgba(245,101,101,0.08)', color: 'var(--danger)', border: '1px solid rgba(245,101,101,0.2)' }}
-        >
+        <div style={{ padding: '14px', background: 'rgba(245,101,101,0.1)', border: '1px solid rgba(245,101,101,0.2)', color: '#feb2b2', borderRadius: 'var(--radius-md)', fontSize: '13px' }}>
           {apiError}
         </div>
       )}

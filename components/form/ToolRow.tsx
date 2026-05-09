@@ -45,32 +45,25 @@ export default function ToolRow({ index, onRemove }: ToolRowProps) {
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.025)',
-      border: '1px solid var(--border-default)',
-      borderRadius: '12px',
-      padding: '20px',
-      marginBottom: '12px',
-      transition: 'border-color 0.2s ease',
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid var(--border-subtle)',
+      borderRadius: 'var(--radius-lg)',
+      padding: '24px',
+      position: 'relative',
     }}>
-      {/* Tool name header */}
-      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'16px'}}>
-        <span style={{fontFamily:'var(--font-display)', fontWeight:600, fontSize:'15px'}}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>
           {tool ? TOOL_LABELS[tool] : 'Tool'}
         </span>
         <button onClick={onRemove} type="button" style={{
-          background:'transparent', border:'none', color:'var(--text-muted)',
-          cursor:'pointer', fontSize:'18px', lineHeight:1, padding:'4px 8px',
-          transition:'color 0.15s',
-        }}
-        onMouseOver={e => e.currentTarget.style.color = 'var(--danger)'}
-        onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
-        >×</button>
+          background: 'transparent', border: 'none', color: 'var(--text-muted)',
+          cursor: 'pointer', fontSize: '20px', padding: '0 8px',
+        }}>&times;</button>
       </div>
 
-      {/* Three inputs in a row */}
-      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'12px'}}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr 1fr', gap: '12px' }}>
         <div>
-          <label style={{fontSize:'11px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'6px', display:'block'}}>Plan</label>
+          <label className="input-label">Plan</label>
           <Controller
             name={`tools.${index}.plan`}
             render={({ field }) => (
@@ -81,10 +74,11 @@ export default function ToolRow({ index, onRemove }: ToolRowProps) {
                   handlePlanChange(e.target.value);
                 }}
                 className="input-field"
+                style={{ appearance: 'auto' }}
               >
                 <option value="">Select plan</option>
                 {toolData?.plans.map((p) => (
-                  <option key={p.planId} value={p.planId} style={{ background: 'var(--bg-surface)' }}>
+                  <option key={p.planId} value={p.planId} style={{ background: 'var(--bg-surface)', color: '#fff' }}>
                     {p.planLabel}{p.pricePerSeatPerMonth !== null ? ` ($${p.pricePerSeatPerMonth})` : ' (Custom)'}
                   </option>
                 ))}
@@ -93,7 +87,7 @@ export default function ToolRow({ index, onRemove }: ToolRowProps) {
           />
         </div>
         <div>
-          <label style={{fontSize:'11px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'6px', display:'block'}}>Seats</label>
+          <label className="input-label">Seats</label>
           <input
             {...register(`tools.${index}.seats`, {
               valueAsNumber: true,
@@ -105,7 +99,7 @@ export default function ToolRow({ index, onRemove }: ToolRowProps) {
           />
         </div>
         <div>
-          <label style={{fontSize:'11px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'6px', display:'block'}}>Monthly ($)</label>
+          <label className="input-label">Monthly ($)</label>
           <input
             {...register(`tools.${index}.monthlySpend`, { valueAsNumber: true })}
             type="number"

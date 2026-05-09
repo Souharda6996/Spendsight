@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { cn } from '@/lib/utils';
 
 interface ModalProps {
   open: boolean;
@@ -50,7 +49,7 @@ export default function Modal({ open, onClose, title, children, className }: Mod
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1rem',
-        background: 'rgba(8, 11, 17, 0.85)',
+        background: 'rgba(4, 5, 10, 0.9)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
       }}
@@ -62,31 +61,25 @@ export default function Modal({ open, onClose, title, children, className }: Mod
       aria-label={title}
     >
       <div
-        className={cn(
-          'glass-card w-full max-w-md relative anim-fade-up',
-          className
-        )}
+        className={`glass-card w-full max-w-md relative anim-fade-up ${className ?? ''}`}
         style={{ 
           padding: '2rem',
           zIndex: 10000,
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border-default)',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: 'var(--shadow-card)',
         }}
       >
         <button
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '1rem',
-            right: '1rem',
+            top: '1.25rem',
+            right: '1.25rem',
             background: 'transparent',
             border: 'none',
             color: 'var(--text-muted)',
             fontSize: '1.5rem',
             cursor: 'pointer',
-            lineHeight: 1
+            lineHeight: 1,
+            zIndex: 10
           }}
           aria-label="Close modal"
         >
@@ -96,9 +89,10 @@ export default function Modal({ open, onClose, title, children, className }: Mod
           style={{ 
             fontFamily: 'var(--font-display)', 
             color: 'var(--text-primary)',
-            fontSize: '1.25rem',
-            fontWeight: 600,
-            marginBottom: '0.25rem'
+            fontSize: '1.4rem',
+            fontWeight: 700,
+            marginBottom: '1rem',
+            letterSpacing: '-0.02em'
           }}
         >
           {title}

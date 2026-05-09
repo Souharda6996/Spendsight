@@ -32,54 +32,57 @@ export function AuditHero({ totalMonthlySavings, totalAnnualSavings }: AuditHero
   const isOptimal = totalMonthlySavings === 0;
 
   return (
-    <div className="glow-card anim-scale-in" style={{
-      padding: 'clamp(40px, 6vw, 72px)',
+    <div className="glass-card anim-fade-up" data-delay="1" style={{
+      padding: '48px',
       textAlign: 'center',
       marginBottom: '32px',
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Subtle animated orb behind number */}
-      <div style={{
-        position: 'absolute',
-        top: '50%', left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '400px', height: '200px',
-        background: 'radial-gradient(ellipse, rgba(99,210,150,0.08) 0%, transparent 70%)',
+      {/* Background accent glow */}
+      <div aria-hidden="true" style={{
+        position: 'absolute', top: '-40px', left: '50%', transform: 'translateX(-50%)',
+        width: '300px', height: '200px',
+        background: 'radial-gradient(circle, rgba(0,200,150,0.10) 0%, transparent 70%)',
+        filter: 'blur(40px)',
         pointerEvents: 'none',
-        animation: 'orb-pulse 6s ease-in-out infinite',
       }} />
-
-      <p style={{
-        fontSize: '11px',
-        fontWeight: 600,
-        letterSpacing: '0.14em',
-        textTransform: 'uppercase',
-        color: 'var(--text-muted)',
-        marginBottom: '16px',
-        fontFamily: 'var(--font-mono)',
-      }}>
-        {isOptimal ? 'Audit Complete' : 'Potential Monthly Savings'}
-      </p>
-
+      
+      <div className="badge-accent" style={{ marginBottom: '24px' }}>
+        {isOptimal ? 'Audit Complete' : 'Audit Complete'}
+      </div>
+      
       {isOptimal ? (
-        <div>
-          <p style={{fontSize: 'clamp(40px, 6vw, 64px)', fontFamily:'var(--font-display)', fontWeight:800, color:'var(--accent)', marginBottom:'8px'}}>
-            You&apos;re spending well. ✓
-          </p>
-          <p style={{color:'var(--text-secondary)', fontSize:'16px'}}>
-            No immediate savings identified — your stack is optimized.
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h1 style={{ 
+            fontSize: 'clamp(32px, 5vw, 48px)', 
+            fontFamily: 'var(--font-display)', 
+            fontWeight: 800, 
+            color: 'var(--accent)', 
+            marginBottom: '12px' 
+          }}>
+            Your stack is optimized. ✓
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '16px', fontWeight: 300 }}>
+            No immediate overspend identified. You&apos;re spending efficiently.
           </p>
         </div>
       ) : (
-        <>
-          <div className="savings-number" style={{marginBottom: '16px', position:'relative', zIndex:1}}>
-            <span ref={counterRef}>${totalMonthlySavings}</span>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '32px', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+          <div>
+            <div className="stat-number">
+              <span ref={counterRef}>${totalMonthlySavings}</span>
+            </div>
+            <div className="stat-label">Monthly Savings</div>
           </div>
-          <p style={{color: 'var(--text-secondary)', fontSize: 'clamp(14px, 2vw, 18px)', fontWeight:300}}>
-            per month &nbsp;·&nbsp; <strong style={{color:'var(--text-primary)', fontWeight:600}}>${totalAnnualSavings.toLocaleString()}</strong> per year
-          </p>
-        </>
+          <div style={{ width: '1px', height: '60px', background: 'var(--border-subtle)' }} />
+          <div>
+            <div className="stat-number">
+              ${totalAnnualSavings.toLocaleString()}
+            </div>
+            <div className="stat-label">Annual Savings</div>
+          </div>
+        </div>
       )}
     </div>
   );

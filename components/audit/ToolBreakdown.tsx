@@ -22,66 +22,46 @@ export default function ToolBreakdown({ toolResults }: ToolBreakdownProps) {
       {toolResults.map((result, index) => (
         <div 
           key={result.tool}
-          className={`tool-card ${result.monthlySavings > 0 ? 'has-savings' : ''} anim-fade-up`}
-          style={{ animationDelay: `${index * 0.08}s` }}
+          className="glass-card anim-fade-up"
+          style={{ 
+            padding: '24px 28px', 
+            animationDelay: `${index * 0.08}s` 
+          }}
         >
-          {/* Top row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-            {/* Left: tool + current */}
-            <div>
-              <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700, fontSize: '15px',
+                color: 'var(--text-primary)', marginBottom: '4px',
+              }}>
                 {TOOL_LABELS[result.tool] ?? result.tool}
-              </p>
-              <p style={{ color: 'var(--text-muted)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
-                {result.currentPlan} · <span style={{ color: 'var(--text-secondary)' }}>${result.currentSpend}/mo</span>
-              </p>
+              </div>
+              <div style={{
+                fontSize: '13px', color: 'var(--text-secondary)',
+                lineHeight: '1.5',
+              }}>
+                {result.reason}
+              </div>
             </div>
-
-            {/* Right: savings OR optimal */}
-            <div style={{ textAlign: 'right' }}>
-              {result.monthlySavings > 0 ? (
-                <>
-                  <p style={{ color: 'var(--accent)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '18px' }}>
-                    Save ${result.monthlySavings}/mo
-                  </p>
-                  {result.recommendedPlan && (
-                    <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '2px' }}>
-                      → {result.recommendedPlan}
-                    </p>
-                  )}
-                  {result.recommendedTool && !result.recommendedPlan && (
-                    <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '2px' }}>
-                      → {result.recommendedTool}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>✓ Optimal</p>
-              )}
+            <div className={result.monthlySavings > 0 ? 'savings-positive' : 'savings-neutral'}>
+              {result.monthlySavings > 0 ? `Save $${result.monthlySavings}/mo` : 'Optimized'}
             </div>
           </div>
-
-          {/* Badge row */}
-          <div style={{ marginBottom: '12px' }}>
-            <span className={`badge badge-${result.recommendation}`}>
-              {result.recommendation === 'downgrade' ? '↓ Downgrade' :
-                result.recommendation === 'switch' ? '⇄ Switch Tool' :
-                  result.recommendation === 'credits' ? '◎ Credits Available' :
-                    '✓ Optimal'}
-            </span>
-          </div>
-
-          {/* Reason */}
-          <p style={{
-            color: 'var(--text-secondary)',
-            fontSize: '13px',
-            lineHeight: 1.6,
-            fontStyle: 'italic',
-            borderTop: '1px solid var(--border-subtle)',
-            paddingTop: '12px',
-          }}>
-            {result.reason}
-          </p>
+          
+          {result.monthlySavings > 0 && result.recommendedPlan && (
+            <div style={{ 
+              marginTop: '16px', 
+              paddingTop: '12px', 
+              borderTop: '1px solid var(--border-subtle)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Recommendation</span>
+              <span style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 500 }}>{result.recommendedPlan}</span>
+            </div>
+          )}
         </div>
       ))}
     </div>
