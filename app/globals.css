@@ -1,26 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:              #080b11;
+  --surface:         rgba(255, 255, 255, 0.04);
+  --surface-hover:   rgba(255, 255, 255, 0.07);
+  --border:          rgba(255, 255, 255, 0.08);
+  --border-accent:   rgba(99, 210, 150, 0.4);
+  --text-primary:    #f0f4f8;
+  --text-secondary:  #8b99b0;
+  --text-muted:      #4a5568;
+  --accent:          #63d296;
+  --accent-glow:     rgba(99, 210, 150, 0.15);
+  --danger:          #f56565;
+  --warn:            #f6ad55;
+  --font-display:    'Syne', sans-serif;
+  --font-body:       'DM Sans', sans-serif;
+  --radius:          12px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Dot-grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.glass-card:hover {
+  background: var(--surface-hover);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  line-height: 1.15;
+}
+
+/* Savings green glow */
+.savings-glow {
+  text-shadow: 0 0 40px rgba(99, 210, 150, 0.5);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.5s ease forwards;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    var(--surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 210, 150, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(99, 210, 150, 0.25); }
+}
+
+.accent-glow-pulse {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Form elements */
+input, select, textarea {
+  font-family: var(--font-body);
+}
+
+/* Focus rings */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Utility classes */
+.text-primary   { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted     { color: var(--text-muted); }
+.text-accent    { color: var(--accent); }
+.text-danger    { color: var(--danger); }
+.text-warn      { color: var(--warn); }
+
+.font-display { font-family: var(--font-display); }
+.font-body    { font-family: var(--font-body); }
+
+.border-accent { border-color: var(--border-accent); }
+.bg-accent-glow { background: var(--accent-glow); }
