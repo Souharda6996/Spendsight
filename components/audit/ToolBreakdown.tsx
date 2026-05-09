@@ -1,3 +1,4 @@
+'use client';
 import { ToolAuditResult } from '@/types';
 import Badge from '@/components/ui/Badge';
 import { formatCurrency } from '@/lib/utils';
