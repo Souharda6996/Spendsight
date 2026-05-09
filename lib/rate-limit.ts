@@ -6,17 +6,17 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-// 10 audits per IP per hour
+// 20 audits per IP per hour
 export const auditRateLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(10, '1 h'),
+  limiter: Ratelimit.slidingWindow(20, '1 h'),
   prefix: 'spendsight:audit',
 });
 
-// 3 email captures per IP per hour
+// 10 email captures per IP per hour
 export const leadRateLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(3, '1 h'),
+  limiter: Ratelimit.slidingWindow(10, '1 h'),
   prefix: 'spendsight:lead',
 });
 

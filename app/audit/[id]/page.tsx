@@ -2,9 +2,9 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createServerSupabaseClient } from '@/lib/supabase';
 import { AuditResult } from '@/types';
-import AuditHero from '@/components/audit/AuditHero';
+import { AuditHero } from '@/components/audit/AuditHero';
 import ToolBreakdown from '@/components/audit/ToolBreakdown';
-import AISummary from '@/components/audit/AISummary';
+import { AISummary } from '@/components/audit/AISummary';
 import CredexCTA from '@/components/audit/CredexCTA';
 import ShareButton from '@/components/audit/ShareButton';
 import LeadCaptureModal from '@/components/lead/LeadCaptureModal';
@@ -76,70 +76,63 @@ export default async function AuditPage({ params }: AuditPageProps) {
   const showCredexCTA = audit.totalMonthlySavings > 500;
 
   return (
-    <main style={{ maxWidth: '720px', margin: '0 auto', padding: '2rem 1.5rem 6rem' }}>
+    <main style={{ maxWidth: '1100px', margin: '0 auto', padding: '2rem 1.5rem 6rem' }}>
       {/* Nav */}
-      <nav style={{ marginBottom: '2rem' }}>
+      <nav style={{ marginBottom: '40px' }}>
         <Link
           href="/"
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 700,
-            fontSize: '15px',
-            color: 'var(--accent)',
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
+          className="btn-ghost"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0', color: 'var(--accent)' }}
         >
           ← SpendSight
         </Link>
       </nav>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         {/* 1. Hero */}
         <AuditHero
           totalMonthlySavings={audit.totalMonthlySavings}
           totalAnnualSavings={audit.totalAnnualSavings}
         />
 
-        {/* 2. Tool breakdown */}
-        <ToolBreakdown toolResults={audit.toolResults} />
+        {/* 2. Main content grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '32px',
+        }}>
+          {/* Left Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <h2 className="display-sm" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '12px' }}>Tool Breakdown</h2>
+            <ToolBreakdown toolResults={audit.toolResults} />
+          </div>
 
-        {/* 3. AI Summary */}
-        <AISummary summary={audit.aiSummary ?? ''} />
+          {/* Right Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <h2 className="display-sm" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '12px' }}>Analysis & Actions</h2>
+            <AISummary summary={audit.aiSummary ?? ''} />
+            {showCredexCTA && <CredexCTA />}
+            
+            <div className="form-glass" style={{ padding: '32px', textAlign: 'center' }}>
+              <p style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '18px', color: 'var(--text-primary)', marginBottom: '16px' }}>
+                Keep a copy of your audit
+              </p>
+              <LeadCaptureModal
+                auditId={audit.id}
+                totalMonthlySavings={audit.totalMonthlySavings}
+              />
+            </div>
 
-        {/* 4. Credex CTA — only if savings > $500 */}
-        {showCredexCTA && <CredexCTA />}
-
-        {/* 5. Email capture */}
-        <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center' }}>
-          <p
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 600,
-              fontSize: '16px',
-              color: 'var(--text-primary)',
-              marginBottom: '12px',
-            }}
-          >
-            Keep a copy of your audit
-          </p>
-          <LeadCaptureModal
-            auditId={audit.id}
-            totalMonthlySavings={audit.totalMonthlySavings}
-          />
+            <ShareButton />
+          </div>
         </div>
 
-        {/* 6. Share */}
-        <ShareButton />
-
-        {/* Audit metadata */}
-        <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
-          Audit ID: <code style={{ fontFamily: 'monospace', opacity: 0.7 }}>{audit.id}</code>
-          {' · '}
-          {new Date(audit.createdAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}
-        </p>
+        {/* Footer info */}
+        <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '32px', marginTop: '32px', textAlign: 'center' }}>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+            AUDIT_ID: {audit.id} &nbsp;·&nbsp; GENERATED: {new Date(audit.createdAt).toISOString()}
+          </p>
+        </div>
       </div>
     </main>
   );

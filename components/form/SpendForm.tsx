@@ -5,10 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import React from 'react';
 import ToolRow from '@/components/form/ToolRow';
-import Button from '@/components/ui/Button';
-import { AITool, UsageIntent } from '@/types';
-import { PRICING_DATA } from '@/lib/pricing-data';
+import { AITool } from '@/types';
 
 // ── Validation Schema ─────────────────────────────────────────────────────────
 const schema = z.object({
@@ -25,14 +24,6 @@ const schema = z.object({
 });
 
 type FormValues = z.infer<typeof schema>;
-
-const USE_CASES: { value: UsageIntent; label: string }[] = [
-  { value: 'coding',   label: 'Coding' },
-  { value: 'writing',  label: 'Writing' },
-  { value: 'data',     label: 'Data' },
-  { value: 'research', label: 'Research' },
-  { value: 'mixed',    label: 'Mixed' },
-];
 
 const AVAILABLE_TOOLS: AITool[] = ['cursor', 'claude', 'chatgpt', 'github-copilot', 'gemini', 'windsurf', 'anthropic-api', 'openai-api'];
 
@@ -52,11 +43,11 @@ const STORAGE_KEY = 'spendsight_form';
 const slideVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? 40 : -40, opacity: 0 }),
   center: { x: 0, opacity: 1 },
-  exit:  (dir: number) => ({ x: dir > 0 ? -40 : 40, opacity: 0 }),
+  exit: (dir: number) => ({ x: dir > 0 ? -40 : 40, opacity: 0 }),
 };
 
 export default function SpendForm() {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [apiError, setApiError] = useState('');
   const router = useRouter();
@@ -80,14 +71,14 @@ export default function SpendForm() {
         const parsed = JSON.parse(saved);
         methods.reset(parsed);
       }
-    } catch {}
+    } catch { }
   }, [methods]);
 
   useEffect(() => {
     const subscription = methods.watch((value) => {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
-      } catch {}
+      } catch { }
     });
     return () => subscription.unsubscribe();
   }, [methods]);
@@ -104,9 +95,13 @@ export default function SpendForm() {
 
   const handleNext = async () => {
     let valid = false;
-    if (step === 0) valid = await methods.trigger(['teamSize', 'useCase']);
-    if (step === 1) valid = await methods.trigger(['tools']);
+    if (step === 1) valid = await methods.trigger(['teamSize', 'useCase']);
+    if (step === 2) valid = await methods.trigger(['tools']);
     if (valid) goToStep(step + 1);
+  };
+
+  const handleBack = () => {
+    if (step > 1) goToStep(step - 1);
   };
 
   const onSubmit = async (data: FormValues) => {
@@ -130,127 +125,95 @@ export default function SpendForm() {
     }
   };
 
-  const stepLabels = ['Team', 'Tools', 'Review'];
-
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
-        {/* Hidden honeypot */}
-        <input
-          name="website"
-          type="text"
-          aria-hidden="true"
-          tabIndex={-1}
-          style={{ display: 'none' }}
-          autoComplete="off"
-        />
+      <div className="form-glass" style={{ padding: '40px 44px', maxWidth: '680px', width: '100%', margin: '0 auto' }}>
+        <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
+          {/* Step indicator */}
+          <div className="step-indicator">
+            {['Team', 'Tools', 'Review'].map((label, idx) => {
+              const stepNum = idx + 1;
+              const isDone = step > stepNum;
+              const isActive = step === stepNum;
+              return (
+                <React.Fragment key={label}>
+                  {idx > 0 && <div className={`step-line ${step > idx ? 'done' : ''}`} />}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <div className={`step-dot ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`}>
+                      {isDone ? '✓' : stepNum}
+                    </div>
+                    <span style={{ fontSize: '11px', color: isActive ? 'var(--accent)' : 'var(--text-muted)', fontWeight: isActive ? 600 : 400 }}>
+                      {label}
+                    </span>
+                  </div>
+                </React.Fragment>
+              );
+            })}
+          </div>
 
-        {/* Step indicator */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          {stepLabels.map((label, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div
-                className="flex items-center justify-center w-7 h-7 rounded-full text-xs font-semibold transition-all duration-300"
-                style={{
-                  background: i <= step ? 'var(--accent)' : 'var(--surface)',
-                  color: i <= step ? '#080b11' : 'var(--text-muted)',
-                  border: i === step ? '2px solid var(--accent)' : '1px solid var(--border)',
-                }}
-              >
-                {i < step ? '✓' : i + 1}
-              </div>
-              <span
-                className="text-xs font-medium hidden sm:block"
-                style={{ color: i === step ? 'var(--text-primary)' : 'var(--text-muted)' }}
-              >
-                {label}
-              </span>
-              {i < stepLabels.length - 1 && (
-                <div
-                  className="w-8 h-px ml-1 transition-all duration-300"
-                  style={{ background: i < step ? 'var(--accent)' : 'var(--border)' }}
-                />
+          <div className="relative overflow-hidden">
+            <AnimatePresence custom={direction} mode="wait">
+              {step === 1 && (
+                <motion.div
+                  key="step1"
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                >
+                  <StepOne />
+                </motion.div>
               )}
-            </div>
-          ))}
-        </div>
 
-        {/* Steps */}
-        <div className="relative overflow-hidden">
-          <AnimatePresence custom={direction} mode="wait">
-            {step === 0 && (
-              <motion.div
-                key="step0"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-              >
-                <StepOne />
-                <div className="flex justify-end mt-6">
-                  <Button type="button" onClick={handleNext} size="lg">
-                    Next →
-                  </Button>
-                </div>
-              </motion.div>
-            )}
+              {step === 2 && (
+                <motion.div
+                  key="step2"
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                >
+                  <StepTwo fields={fields} addTool={addTool} remove={remove} />
+                </motion.div>
+              )}
 
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-              >
-                <StepTwo
-                  fields={fields}
-                  addTool={addTool}
-                  remove={remove}
-                />
-                <div className="flex justify-between mt-6">
-                  <Button type="button" variant="ghost" onClick={() => goToStep(0)}>
-                    ← Back
-                  </Button>
-                  <Button type="button" onClick={handleNext} size="lg">
-                    Review →
-                  </Button>
-                </div>
-              </motion.div>
-            )}
+              {step === 3 && (
+                <motion.div
+                  key="step3"
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                >
+                  <StepThree apiError={apiError} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-              >
-                <StepThree apiError={apiError} />
-                <div className="flex justify-between mt-6">
-                  <Button type="button" variant="ghost" onClick={() => goToStep(1)}>
-                    ← Back
-                  </Button>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    loading={methods.formState.isSubmitting}
-                  >
-                    Run My Audit →
-                  </Button>
-                </div>
-              </motion.div>
+          {/* Navigation buttons */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '32px' }}>
+            {step > 1 && (
+              <button className="btn-ghost" onClick={handleBack} type="button">← Back</button>
             )}
-          </AnimatePresence>
-        </div>
-      </form>
+            <button
+              className="btn-primary"
+              style={{ marginLeft: 'auto' }}
+              onClick={step === 3 ? undefined : handleNext}
+              type={step === 3 ? 'submit' : 'button'}
+              disabled={methods.formState.isSubmitting}
+            >
+              {step === 3 ? (methods.formState.isSubmitting ? 'Running...' : 'Run My Audit →') : 'Next →'}
+            </button>
+          </div>
+        </form>
+      </div>
     </FormProvider>
   );
 }
@@ -264,26 +227,21 @@ function StepOne() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h3 className="text-lg font-semibold mb-1" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>
-          Tell us about your team
-        </h3>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          This helps calibrate the audit to your scale.
+        <h2 className="display-md" style={{ marginBottom: '6px' }}>Tell us about your team</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '15px' }}>
+          This calibrates the audit to your scale.
         </p>
       </div>
 
       <div>
-        <label htmlFor="teamSize" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+        <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.02em' }}>
           How big is your team?
         </label>
         <input
           {...register('teamSize', { valueAsNumber: true })}
-          id="teamSize"
           type="number"
-          min="1"
-          className="h-10 w-full max-w-xs rounded-xl border border-[var(--border)] bg-transparent text-sm px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#63d296] hover:border-[rgba(255,255,255,0.15)] transition-all"
-          style={{ color: 'var(--text-primary)' }}
-          placeholder="e.g. 8"
+          className="input-field"
+          placeholder="e.g. 10"
         />
         {errors.teamSize && (
           <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>{errors.teamSize.message}</p>
@@ -291,23 +249,18 @@ function StepOne() {
       </div>
 
       <div>
-        <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+        <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.02em' }}>
           Primary use case?
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {USE_CASES.map(({ value, label }) => (
+        </label>
+        <div className="segment-group" style={{ marginTop: '8px' }}>
+          {['Coding', 'Writing', 'Data', 'Research', 'Mixed'].map(uc => (
             <button
-              key={value}
+              key={uc}
+              className={`segment-pill ${useCase === uc.toLowerCase() ? 'active' : ''}`}
+              onClick={() => setValue('useCase', uc.toLowerCase() as FormValues['useCase'])}
               type="button"
-              onClick={() => setValue('useCase', value)}
-              className="px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200"
-              style={{
-                background: useCase === value ? 'var(--accent)' : 'var(--surface)',
-                color: useCase === value ? '#080b11' : 'var(--text-secondary)',
-                border: useCase === value ? '1px solid var(--accent)' : '1px solid var(--border)',
-              }}
             >
-              {label}
+              {uc}
             </button>
           ))}
         </div>
@@ -321,7 +274,7 @@ function StepTwo({
   addTool,
   remove,
 }: {
-  fields: Record<string, unknown>[];
+  fields: Array<{ id: string } & FormValues['tools'][number]>;
   addTool: (t: AITool) => void;
   remove: (i: number) => void;
 }) {
@@ -332,41 +285,29 @@ function StepTwo({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h3 className="text-lg font-semibold mb-1" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>
-          Which AI tools does your team pay for?
-        </h3>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+        <h2 className="display-md" style={{ marginBottom: '6px' }}>Which tools do you use?</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '15px' }}>
           Add each tool and select your current plan.
         </p>
       </div>
 
-      {/* Add tool chips */}
-      <div className="flex flex-wrap gap-2">
-        {AVAILABLE_TOOLS.map((tool) => {
-          const added = addedToolIds.includes(tool);
-          return (
-            <button
-              key={tool}
-              type="button"
-              onClick={() => !added && addTool(tool)}
-              disabled={added}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 disabled:opacity-40"
-              style={{
-                background: added ? 'var(--surface-hover)' : 'var(--surface)',
-                color: added ? 'var(--text-muted)' : 'var(--accent)',
-                border: '1px solid var(--border-accent)',
-              }}
-            >
-              {added ? '✓' : '+'} {TOOL_LABELS[tool]}
-            </button>
-          );
-        })}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+        {AVAILABLE_TOOLS.map(tool => (
+          <button
+            key={tool}
+            className={`tool-chip ${addedToolIds.includes(tool) ? 'added' : ''}`}
+            onClick={() => addTool(tool)}
+            type="button"
+            disabled={addedToolIds.includes(tool)}
+          >
+            {addedToolIds.includes(tool) ? '✓' : '+'} {TOOL_LABELS[tool]}
+          </button>
+        ))}
       </div>
 
-      {/* Tool rows */}
       <div className="flex flex-col gap-3">
         {fields.map((field, index) => (
-          <ToolRow key={field.id as string} index={index} onRemove={() => remove(index)} />
+          <ToolRow key={field.id} index={index} onRemove={() => remove(index)} />
         ))}
         {fields.length === 0 && (
           <div className="glass-card p-8 text-center" style={{ color: 'var(--text-muted)' }}>
@@ -385,10 +326,8 @@ function StepThree({ apiError }: { apiError: string }) {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h3 className="text-lg font-semibold mb-1" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>
-          Review your submission
-        </h3>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+        <h2 className="display-md" style={{ marginBottom: '6px' }}>Review Audit</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '15px' }}>
           Confirm your details before running the audit.
         </p>
       </div>

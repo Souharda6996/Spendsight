@@ -34,12 +34,26 @@ export default function Modal({ open, onClose, title, children, className }: Mod
   }, [open, onClose]);
 
   if (!open) return null;
+  if (typeof document === 'undefined') return null;
 
   return createPortal(
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(8, 11, 17, 0.85)', backdropFilter: 'blur(8px)' }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem',
+        background: 'rgba(8, 11, 17, 0.85)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose();
       }}
@@ -49,21 +63,43 @@ export default function Modal({ open, onClose, title, children, className }: Mod
     >
       <div
         className={cn(
-          'glass-card w-full max-w-md relative fade-up',
+          'glass-card w-full max-w-md relative anim-fade-up',
           className
         )}
-        style={{ padding: '2rem' }}
+        style={{ 
+          padding: '2rem',
+          zIndex: 10000,
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-card)',
+        }}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors text-xl leading-none"
+          style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-muted)',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+            lineHeight: 1
+          }}
           aria-label="Close modal"
         >
           ×
         </button>
         <h2
-          className="text-xl font-semibold mb-1"
-          style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}
+          style={{ 
+            fontFamily: 'var(--font-display)', 
+            color: 'var(--text-primary)',
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            marginBottom: '0.25rem'
+          }}
         >
           {title}
         </h2>

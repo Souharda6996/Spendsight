@@ -30,6 +30,8 @@ export const metadata: Metadata = {
   },
 };
 
+import Navbar from '@/components/ui/Navbar';
+
 export default function RootLayout({
   children,
 }: {
@@ -42,7 +44,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        <div style={{ position: 'relative', zIndex: 1 }}>
+        <Navbar />
+        <div style={{ position: 'relative', zIndex: 1, paddingTop: '72px' }}>
           {children}
         </div>
       </body>

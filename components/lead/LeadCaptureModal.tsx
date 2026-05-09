@@ -4,8 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Modal from '@/components/ui/Modal';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -28,7 +27,7 @@ export default function LeadCaptureModal({ auditId, totalMonthlySavings, trigger
 
   const isLowSavings = totalMonthlySavings < 100;
   const buttonLabel = isLowSavings
-    ? 'Notify me when new savings apply to my stack'
+    ? 'Notify me when new savings apply'
     : trigger ?? 'Get full report via email';
 
   const {
@@ -58,89 +57,102 @@ export default function LeadCaptureModal({ auditId, totalMonthlySavings, trigger
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} variant="outline" size="lg" style={{ width: '100%' }}>
+      <button 
+        type="button"
+        onClick={() => setOpen(true)} 
+        className="btn-primary" 
+        style={{ width: '100%', justifyContent: 'center' }}
+      >
         {buttonLabel}
-      </Button>
+      </button>
 
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title={submitted ? 'Report on its way! ✓' : 'Get your full report'}
+        title={submitted ? 'Report on its way!' : 'Get your full report'}
       >
-        {submitted ? (
-          <div style={{ paddingTop: '1rem' }}>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6 }}>
-              {"We've sent your AI spend audit to your inbox. Check spam if it doesn't arrive within 2 minutes."}
-            </p>
-            <Button
-              onClick={() => setOpen(false)}
-              style={{ marginTop: '1.5rem', width: '100%' }}
-            >
-              Close
-            </Button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ paddingTop: '1rem' }}>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '1.5rem' }}>
-              {"We'll email you a copy of your audit. No spam, ever."}
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <Input
-                {...register('email')}
-                id="lead-email"
-                type="email"
-                label="Email *"
-                placeholder="you@startup.com"
-                error={errors.email?.message}
-                autoComplete="email"
-              />
-              <Input
-                {...register('companyName')}
-                id="lead-company"
-                label="Company name (optional)"
-                placeholder="Acme Inc."
-                autoComplete="organization"
-              />
-              <Input
-                {...register('role')}
-                id="lead-role"
-                label="Your role (optional)"
-                placeholder="CTO, Engineering Lead…"
-                autoComplete="organization-title"
-              />
+        <div style={{ padding: '8px 4px' }}>
+          {!submitted && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+              <BrandLogo showText={false} />
             </div>
-
-            {apiError && (
-              <p
-                style={{
-                  fontSize: '13px',
-                  color: 'var(--danger)',
-                  marginTop: '0.75rem',
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  background: 'rgba(245,101,101,0.08)',
-                  border: '1px solid rgba(245,101,101,0.2)',
-                }}
-              >
-                {apiError}
+          )}
+          {submitted ? (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px', color: 'var(--accent)' }}>✓</div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
+                We&apos;ve sent your AI spend audit to your inbox. Check spam if it doesn&apos;t arrive within 2 minutes.
               </p>
-            )}
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="btn-ghost"
+                style={{ width: '100%' }}
+              >
+                Close
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.5 }}>
+                We&apos;ll email you a PDF copy of your audit and notification of future credits. No spam, ever.
+              </p>
 
-            <Button
-              type="submit"
-              size="lg"
-              loading={isSubmitting}
-              style={{ width: '100%', marginTop: '1.5rem' }}
-            >
-              Send my report →
-            </Button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px' }}>EMAIL ADDRESS *</label>
+                  <input
+                    {...register('email')}
+                    type="email"
+                    className="input-field"
+                    placeholder="you@startup.com"
+                    autoComplete="email"
+                  />
+                  {errors.email && <p style={{ color: 'var(--danger)', fontSize: '11px', marginTop: '4px' }}>{errors.email.message}</p>}
+                </div>
 
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '12px' }}>
-              By submitting, you agree to occasional product updates. Unsubscribe anytime.
-            </p>
-          </form>
-        )}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px' }}>COMPANY NAME</label>
+                  <input
+                    {...register('companyName')}
+                    className="input-field"
+                    placeholder="Acme Inc."
+                    autoComplete="organization"
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px' }}>YOUR ROLE</label>
+                  <input
+                    {...register('role')}
+                    className="input-field"
+                    placeholder="CTO, Engineering Lead..."
+                    autoComplete="organization-title"
+                  />
+                </div>
+              </div>
+
+              {apiError && (
+                <div style={{ marginTop: '16px', padding: '10px', borderRadius: '8px', background: 'rgba(245,101,101,0.1)', border: '1px solid rgba(245,101,101,0.2)', color: 'var(--danger)', fontSize: '13px' }}>
+                  {apiError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="btn-primary"
+                disabled={isSubmitting}
+                style={{ width: '100%', marginTop: '32px', justifyContent: 'center' }}
+              >
+                {isSubmitting ? 'Sending...' : 'Send my report →'}
+              </button>
+
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '16px' }}>
+                By submitting, you agree to occasional product updates.
+              </p>
+            </form>
+          )}
+        </div>
       </Modal>
     </>
   );

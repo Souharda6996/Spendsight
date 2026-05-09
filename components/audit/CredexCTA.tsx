@@ -1,86 +1,40 @@
 'use client';
-export default function CredexCTA() {
-  return (
-    <section
-      className="glass-card accent-glow-pulse"
-      style={{
-        padding: '1.75rem',
-        borderColor: 'var(--border-accent)',
-        background: 'rgba(99,210,150,0.04)',
-      }}
-      aria-label="Credex credits offer"
-    >
-      <div style={{ marginBottom: '1rem' }}>
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: 'var(--accent-glow)',
-            border: '1px solid var(--border-accent)',
-            borderRadius: '100px',
-            padding: '4px 12px',
-            fontSize: '11px',
-            fontWeight: 600,
-            color: 'var(--accent)',
-            letterSpacing: '0.05em',
-            textTransform: 'uppercase',
-            marginBottom: '12px',
-          }}
-        >
-          ⚡ High-Savings Alert
-        </div>
-        <h2
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '20px',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-            marginBottom: '8px',
-          }}
-        >
-          You qualify for Credex credits
-        </h2>
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          Companies at this spend level can source the same AI credits at 15–30% below retail. 
-          Credex sources unused credits from companies that over-forecasted their AI budgets.
-        </p>
-      </div>
+import { useRef } from 'react';
+import { useTilt } from '@/lib/useTilt';
 
+export default function CredexCTA() {
+  const cardRef = useRef<HTMLDivElement>(null);
+  useTilt(cardRef);
+
+  return (
+    <div ref={cardRef} className="credex-card anim-fade-up delay-5">
+      <div style={{marginBottom: '8px'}}>
+        <span className="badge badge-credits" style={{fontSize:'12px', marginBottom:'16px', display:'inline-flex'}}>
+          ◎ Credex Partner Offer
+        </span>
+      </div>
+      <h3 style={{fontFamily:'var(--font-display)', fontWeight:700, fontSize:'clamp(20px,3vw,26px)', marginBottom:'12px'}}>
+        You qualify for Credex credits
+      </h3>
+      <p style={{color:'var(--text-secondary)', fontSize:'15px', lineHeight:1.7, marginBottom:'28px', fontWeight:300}}>
+        Companies at your spend level can source the same AI credits at 15–30% below retail.
+        Credex sources unused credits from companies that over-forecasted.
+      </p>
       <a
         href="https://credex.rocks"
         target="_blank"
         rel="noopener noreferrer"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '10px 20px',
-          borderRadius: '10px',
-          background: 'var(--accent)',
-          color: '#080b11',
-          fontFamily: 'var(--font-display)',
-          fontWeight: 700,
-          fontSize: '14px',
-          textDecoration: 'none',
-          transition: 'all 0.2s ease',
-          marginBottom: '12px',
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLAnchorElement).style.background = '#7dddaa';
-          (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)';
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent)';
-          (e.currentTarget as HTMLAnchorElement).style.transform = 'none';
-        }}
+        className="btn-primary"
+        style={{textDecoration:'none', display:'inline-flex'}}
       >
-        Book a free consultation →
+        Book a free consultation
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
       </a>
-
-      <p style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-        Credex sources unused credits from companies that over-forecasted. No commitment required.
+      <p style={{marginTop:'12px', fontSize:'12px', color:'var(--text-muted)'}}>
+        No commitment. 20-min call with the Credex team.
       </p>
-    </section>
+    </div>
   );
 }
