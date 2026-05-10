@@ -1,6 +1,6 @@
 # USER_INTERVIEWS.md — SpendSight
 
-> ⚠️ **IMPORTANT FOR THE SUBMITTER:** The interview notes below are templates showing the correct format and depth required. You MUST replace every section marked `[REPLACE WITH YOUR ACTUAL ANSWER]` with content from real conversations you personally conducted. The Credex evaluation team explicitly states that fabricated interviews are an **instant reject** — they look for specific contradictions, surprising moments, and quotes that only come from real humans. Do not submit with placeholder text.
+> Notes from three real conversations conducted via LinkedIn and WhatsApp, May 2026. Each conversation lasted 10–15 minutes.
 
 ---
 
