@@ -32,11 +32,22 @@ SpendSight audits your team's AI subscription stack — Cursor, Claude, ChatGPT,
 
 ## 📸 The Experience
 
-| Landing | Audit Form | Results |
-|:---:|:---:|:---:|
-| ![Landing Page](public/screenshot-landing.png) | ![Audit Form](public/screenshot-form.png) | ![Audit Results](public/screenshot-results.png) |
+**🔗 Live at:** [https://spendsight-chi.vercel.app/](https://spendsight-chi.vercel.app/)
 
-**🔗 Try it live:** [https://spendsight-chi.vercel.app/](https://spendsight-chi.vercel.app/)
+### Landing Page
+![Landing Page — Stop overpaying for AI tools](public/screenshot-landing.png)
+
+### Step 1 — Configure Your Team
+![Audit Form Step 1 — Team size and primary use case](public/screenshot-form-step1.png)
+
+### Step 2 — Select Your Tools
+![Audit Form Step 2 — Tool selector with plans and seat counts](public/screenshot-form-step2.png)
+
+### Results — Instant Savings Breakdown
+![Audit Results — $2000/mo savings identified, AI summary, tool breakdown](public/screenshot-results.png)
+
+### Credex Credits CTA + Lead Capture
+![Credex CTA — You qualify for credits + Get full report via email](public/screenshot-credex-cta.png)
 
 ---
 
