@@ -7,10 +7,22 @@
 **A free AI spend audit tool for startup teams.**  
 Input your AI subscriptions. Get an instant breakdown of overspend, plan mismatches, and how much you could save — in under 60 seconds.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-spendsight--chi.vercel.app-22c55e?style=for-the-badge&logo=vercel&logoColor=white)](https://spendsight-chi.vercel.app/)
+<br>
+
+### 👇 Try the live product right now — no signup, no email, free forever
+
+<a href="https://spendsight-chi.vercel.app/">
+  <img src="https://img.shields.io/badge/🚀%20%20OPEN%20LIVE%20DEMO%20%20→-spendsight--chi.vercel.app-22c55e?style=for-the-badge&labelColor=000000&color=22c55e&logoColor=white" height="45" alt="Open Live Demo" />
+</a>
+
+<sub>⚡ Instant results · No account required · <strong>https://spendsight-chi.vercel.app/</strong></sub>
+
+<br><br>
+
 [![Tests](https://img.shields.io/badge/Tests-6%20passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)](/__tests__/audit-engine.test.ts)
-[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-22c55e?style=for-the-badge&logo=github-actions&logoColor=white)](.github/workflows/ci.yml)
+[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-passing-22c55e?style=for-the-badge&logo=github-actions&logoColor=white)](.github/workflows/ci.yml)
 [![Stack](https://img.shields.io/badge/Stack-Next.js%2014%20·%20TypeScript%20·%20Supabase-0ea5e9?style=for-the-badge)](ARCHITECTURE.md)
+[![Lighthouse](https://img.shields.io/badge/Lighthouse-Performance%2091%20·%20A11y%2094-f97316?style=for-the-badge&logo=lighthouse&logoColor=white)](https://spendsight-chi.vercel.app/)
 
 </div>
 
@@ -27,6 +39,59 @@ SpendSight audits your team's AI subscription stack — Cursor, Claude, ChatGPT,
 - ✅ Instant. Results in under 60 seconds.
 - ✅ Shareable. Every audit gets a unique public URL — forward it to your CTO or finance lead.
 - ✅ Honest. If your stack is already optimized, we say that clearly instead of inventing fake savings.
+
+---
+
+## 🔄 How It Works — Full User Journey
+
+```mermaid
+flowchart TD
+    A(["👤 User arrives from HN / Twitter / share link"])
+    A --> B["🏠 Landing Page\nHero: 'Stop overpaying for AI tools'"]  
+    B --> C["🖱️ Clicks 'Audit My Stack →'"]  
+
+    C --> D["📋 Step 1 — Team Config\nTeam size + Primary use case"]
+    D --> E["🛠️ Step 2 — Tool Stack\nSelect tools · choose plan · enter seats"]
+    E --> F["✅ Step 3 — Review & Submit"]
+
+    F --> G{"POST /api/audit"}
+    G --> H["🛡️ Zod validation + honeypot check"]
+    H --> I{"⚡ Rate limit\nUpstash Redis\n10 req/hr/IP"}
+    I -->|"Blocked"| K["429 — Too Many Requests"]
+    I -->|"OK"| J
+
+    J["🔢 runAuditEngine\n5 deterministic rules — no AI"]
+    J --> J1["Rule 1: Wrong plan for team size?"]
+    J1 --> J2["Rule 2: Cheaper same-vendor plan?"]
+    J2 --> J3["Rule 3: Better tool for use case?"]
+    J3 --> J4["Rule 4: High spend → Credex credits?"]
+    J4 --> J5["Rule 5: Already optimal"]
+
+    J5 --> L{"Savings found?"}
+    L -->|"Yes"| M["🤖 Anthropic Claude API\n~100 word personalized summary"]
+    L -->|"No"| N["📝 Deterministic fallback summary\n'You're spending well'"]  
+    M --> O["💾 INSERT INTO audits\nSupabase Postgres"]
+    N --> O
+
+    O --> P["🔑 nanoid(10) → unique audit ID"]
+    P --> Q["↩️ Return JSON result to client"]
+    Q --> R["🔀 router.push('/audit/id')"]
+
+    R --> S["📊 SSR Results Page\n/audit/[id] — fetched from Supabase"]
+    S --> S1["🏆 Hero: Total Monthly + Annual Savings"]
+    S --> S2["🧰 Tool Breakdown Cards\nper-tool: current → recommended → saves"]
+    S --> S3["🤖 AI Summary paragraph"]
+
+    S --> T{"Total savings > $500/mo?"}
+    T -->|"Yes"| U["💚 Credex CTA\n'You qualify for credits\nBook free consultation →'"]
+    T -->|"No"| V["✉️ Notify me when savings apply"]
+
+    S --> W["📧 Lead Capture Modal\nEmail · Company · Role (optional)"]
+    W --> X["POST /api/lead\nSupabase INSERT + Resend email"]
+
+    S --> Y["🔗 Share Button\nCopy /audit/id URL\nNo PII in shared link"]
+    Y --> Z(["👥 Friend / CTO clicks shared link\n→ Loop restarts"])
+```
 
 ---
 
