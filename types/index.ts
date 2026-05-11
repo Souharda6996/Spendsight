@@ -34,6 +34,26 @@ export interface ToolAuditResult {
   reason: string;
 }
 
+export interface OverlapResult {
+  /** The two tools that overlap */
+  toolA: AITool;
+  toolB: AITool;
+  /** Human-readable label for each */
+  toolALabel: string;
+  toolBLabel: string;
+  /** Shared capability they duplicate */
+  capability: string;
+  /** Short actionable recommendation */
+  recommendation: string;
+  /** Which tool to keep and why */
+  keepTool: AITool;
+  keepToolLabel: string;
+  /** Combined monthly spend of the overlapping pair */
+  combinedSpend: number;
+  /** Severity: 'high' = paying double for same thing, 'medium' = partial overlap */
+  severity: 'high' | 'medium';
+}
+
 export interface AuditResult {
   id: string;
   formData: FormData;
@@ -41,6 +61,7 @@ export interface AuditResult {
   totalMonthlySavings: number;
   totalAnnualSavings: number;
   aiSummary?: string;
+  overlapResults?: OverlapResult[];
   createdAt: string;
 }
 
@@ -50,3 +71,4 @@ export interface LeadInput {
   companyName?: string;
   role?: string;
 }
+

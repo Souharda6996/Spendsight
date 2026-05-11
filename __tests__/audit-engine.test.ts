@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { runAuditEngine, calculateTotals } from '@/lib/audit-engine';
+import { runAuditEngine, calculateTotals, detectOverlaps } from '@/lib/audit-engine';
 import { FormData, ToolAuditResult } from '@/types';
 
 describe('SpendSight Audit Engine', () => {
@@ -74,7 +74,6 @@ describe('SpendSight Audit Engine', () => {
     const result = results[0];
     expect(result.recommendation).toBe('switch');
     expect(result.recommendedTool).toBeDefined();
-    // Cursor Pro is $0 for first slot since Hobby is $0, savings should be > 10
     expect(result.monthlySavings).toBeGreaterThan(0);
   });
 
@@ -112,5 +111,47 @@ describe('SpendSight Audit Engine', () => {
     const totals = calculateTotals(mockResults);
     expect(totals.totalMonthlySavings).toBe(19);
     expect(totals.totalAnnualSavings).toBe(228);
+  });
+});
+
+// ── OVERLAP DETECTOR TESTS ────────────────────────────────────────────────────
+describe('Overlap Detector', () => {
+  // TEST 7 — Cursor + GitHub Copilot → high severity overlap flagged
+  it('detects high-severity overlap between Cursor and GitHub Copilot', () => {
+    const tools = [
+      { tool: 'cursor' as const, plan: 'cursor-pro', monthlySpend: 20, seats: 3 },
+      { tool: 'github-copilot' as const, plan: 'copilot-business', monthlySpend: 57, seats: 3 },
+    ];
+    const overlaps = detectOverlaps(tools);
+    expect(overlaps.length).toBeGreaterThan(0);
+    const overlap = overlaps[0];
+    expect(overlap.severity).toBe('high');
+    expect(overlap.toolA).toBe('cursor');
+    expect(overlap.toolB).toBe('github-copilot');
+    expect(overlap.combinedSpend).toBe(77);
+  });
+
+  // TEST 8 — Claude + ChatGPT → high severity overlap flagged
+  it('detects high-severity overlap between Claude and ChatGPT', () => {
+    const tools = [
+      { tool: 'claude' as const, plan: 'claude-pro', monthlySpend: 20, seats: 1 },
+      { tool: 'chatgpt' as const, plan: 'chatgpt-plus', monthlySpend: 20, seats: 1 },
+    ];
+    const overlaps = detectOverlaps(tools);
+    const claudeChatgptOverlap = overlaps.find(
+      (o) => o.toolA === 'claude' && o.toolB === 'chatgpt'
+    );
+    expect(claudeChatgptOverlap).toBeDefined();
+    expect(claudeChatgptOverlap!.severity).toBe('high');
+    expect(claudeChatgptOverlap!.keepTool).toBe('claude');
+  });
+
+  // TEST 9 — Single tool → no overlaps detected
+  it('returns empty array when only one tool is present', () => {
+    const tools = [
+      { tool: 'cursor' as const, plan: 'cursor-pro', monthlySpend: 20, seats: 1 },
+    ];
+    const overlaps = detectOverlaps(tools);
+    expect(overlaps).toHaveLength(0);
   });
 });

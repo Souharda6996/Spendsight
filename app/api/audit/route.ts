@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
-import { runAuditEngine, calculateTotals } from '@/lib/audit-engine';
+import { runAuditEngine, calculateTotals, detectOverlaps } from '@/lib/audit-engine';
 import { createServerSupabaseClient } from '@/lib/supabase';
 import { auditRateLimit, getClientIp } from '@/lib/rate-limit';
 import { generateAuditSummary } from '@/lib/anthropic';
@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
 
     const toolResults = runAuditEngine(formData);
     const { totalMonthlySavings, totalAnnualSavings } = calculateTotals(toolResults);
+    const overlapResults = detectOverlaps(formData.tools);
 
     // AI summary with graceful fallback
     const aiSummary = await generateAuditSummary(formData, toolResults, totalMonthlySavings);
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
       total_monthly_savings: totalMonthlySavings,
       total_annual_savings: totalAnnualSavings,
       ai_summary: aiSummary,
+      overlap_results: overlapResults,
       created_at: createdAt,
     });
 
@@ -83,6 +85,7 @@ export async function POST(request: NextRequest) {
       totalMonthlySavings,
       totalAnnualSavings,
       aiSummary,
+      overlapResults,
       createdAt,
     };
 

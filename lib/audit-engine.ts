@@ -307,3 +307,175 @@ export function calculateTotals(results: ToolAuditResult[]) {
     totalAnnualSavings: totalMonthlySavings * 12,
   };
 }
+
+// ── OVERLAP DETECTOR ──────────────────────────────────────────────────────────
+// Detects when the user is paying for two tools with substantially overlapping
+// capabilities. Completely independent of the 5 audit rules above.
+// Each overlap entry is a pair (toolA, toolB) with a severity, capability string,
+// and a keep-one recommendation. Finance-defensible reasoning throughout.
+// ──────────────────────────────────────────────────────────────────────────────
+
+import { OverlapResult } from '@/types';
+
+type OverlapRule = {
+  toolA: AITool;
+  toolB: AITool;
+  capability: string;
+  severity: 'high' | 'medium';
+  recommendation: string;
+  keepTool: AITool;
+  keepToolLabel: string;
+};
+
+/** Hardcoded overlap rules — every pair that duplicates real capability */
+const OVERLAP_RULES: OverlapRule[] = [
+  // ── General-purpose LLM duplicates ────────────────────────────
+  {
+    toolA: 'claude',
+    toolB: 'chatgpt',
+    capability: 'General-purpose LLM (chat, writing, reasoning)',
+    severity: 'high',
+    recommendation:
+      'Claude and ChatGPT both provide general-purpose AI assistance. ' +
+      'Running both costs double for nearly identical output quality on most tasks. ' +
+      'Keep Claude for long-form writing and coding discussions; cancel ChatGPT.',
+    keepTool: 'claude',
+    keepToolLabel: 'Claude',
+  },
+  {
+    toolA: 'anthropic-api',
+    toolB: 'openai-api',
+    capability: 'LLM API access (completions, embeddings)',
+    severity: 'high',
+    recommendation:
+      'You are paying for both the Anthropic API and OpenAI API. ' +
+      'Unless you have hard model-specific requirements per feature, consolidate to one provider. ' +
+      'Claude Sonnet and GPT-4o are near-equivalent for most production use cases — pick the cheaper per-token cost for your actual usage pattern.',
+    keepTool: 'anthropic-api',
+    keepToolLabel: 'Anthropic API',
+  },
+  // ── IDE coding assistants ─────────────────────────────────────
+  {
+    toolA: 'cursor',
+    toolB: 'github-copilot',
+    capability: 'AI-powered code completion and inline editing',
+    severity: 'high',
+    recommendation:
+      'Cursor and GitHub Copilot both provide inline AI code completion inside the editor. ' +
+      'Cursor includes Claude and GPT-4 access on top of completions — it is a strict superset of Copilot at a similar price point. ' +
+      'Cancel Copilot and use Cursor exclusively.',
+    keepTool: 'cursor',
+    keepToolLabel: 'Cursor',
+  },
+  {
+    toolA: 'cursor',
+    toolB: 'windsurf',
+    capability: 'Agentic AI coding environment',
+    severity: 'high',
+    recommendation:
+      'Cursor and Windsurf are both AI-first coding environments that include agentic code generation. ' +
+      'No team needs both. Compare your active usage: whichever has more daily active users on your team should win; cancel the other.',
+    keepTool: 'cursor',
+    keepToolLabel: 'Cursor',
+  },
+  {
+    toolA: 'github-copilot',
+    toolB: 'windsurf',
+    capability: 'AI-assisted code completion',
+    severity: 'high',
+    recommendation:
+      'GitHub Copilot and Windsurf both provide AI code completion. ' +
+      'Windsurf includes agentic features that Copilot lacks — if your team uses agentic coding, keep Windsurf and cancel Copilot.',
+    keepTool: 'windsurf',
+    keepToolLabel: 'Windsurf',
+  },
+  // ── API + chat product for same vendor ───────────────────────
+  {
+    toolA: 'claude',
+    toolB: 'anthropic-api',
+    capability: 'Anthropic Claude access',
+    severity: 'medium',
+    recommendation:
+      'You are paying for Claude (subscription) and Anthropic API access. ' +
+      'If your team uses Claude for personal productivity AND the API for product features, this is expected. ' +
+      'But if developers are using the API interactively in lieu of the product UI, the subscription is redundant — audit actual usage.',
+    keepTool: 'anthropic-api',
+    keepToolLabel: 'Anthropic API',
+  },
+  {
+    toolA: 'chatgpt',
+    toolB: 'openai-api',
+    capability: 'OpenAI GPT model access',
+    severity: 'medium',
+    recommendation:
+      'You are paying for ChatGPT (subscription) and OpenAI API access. ' +
+      'If developers use the API to power product features and use ChatGPT separately for personal productivity, this is justified. ' +
+      'Otherwise, API access already provides full GPT-4o access via Playground — cancel the ChatGPT subscription.',
+    keepTool: 'openai-api',
+    keepToolLabel: 'OpenAI API',
+  },
+  // ── Gemini + general LLM ─────────────────────────────────────
+  {
+    toolA: 'gemini',
+    toolB: 'chatgpt',
+    capability: 'General-purpose AI assistant (non-coding)',
+    severity: 'medium',
+    recommendation:
+      'Gemini and ChatGPT Plus target the same general-purpose AI assistant use case. ' +
+      'Gemini is stronger for Google Workspace integration and long-context tasks; ChatGPT is stronger for plugin ecosystem. ' +
+      'Pick one based on your team\'s primary workflow and cancel the other.',
+    keepTool: 'gemini',
+    keepToolLabel: 'Gemini',
+  },
+  {
+    toolA: 'gemini',
+    toolB: 'claude',
+    capability: 'General-purpose LLM for writing and research',
+    severity: 'medium',
+    recommendation:
+      'Gemini and Claude both excel at long-context writing and research tasks. ' +
+      'This overlap is worth evaluating: Claude outperforms on structured writing and coding discussions; ' +
+      'Gemini wins on Google Workspace integration and multimodal tasks. ' +
+      'Unless your team has clear distinct use cases, consolidating saves $20–30/seat/month.',
+    keepTool: 'claude',
+    keepToolLabel: 'Claude',
+  },
+];
+
+const TOOL_LABELS_MAP: Record<AITool, string> = {
+  'cursor': 'Cursor',
+  'github-copilot': 'GitHub Copilot',
+  'claude': 'Claude',
+  'chatgpt': 'ChatGPT',
+  'anthropic-api': 'Anthropic API',
+  'openai-api': 'OpenAI API',
+  'gemini': 'Gemini',
+  'windsurf': 'Windsurf',
+};
+
+export function detectOverlaps(tools: ToolInput[]): OverlapResult[] {
+  const toolSet = new Set(tools.map((t) => t.tool));
+  const results: OverlapResult[] = [];
+
+  for (const rule of OVERLAP_RULES) {
+    if (toolSet.has(rule.toolA) && toolSet.has(rule.toolB)) {
+      const spendA = tools.find((t) => t.tool === rule.toolA)?.monthlySpend ?? 0;
+      const spendB = tools.find((t) => t.tool === rule.toolB)?.monthlySpend ?? 0;
+      results.push({
+        toolA: rule.toolA,
+        toolB: rule.toolB,
+        toolALabel: TOOL_LABELS_MAP[rule.toolA],
+        toolBLabel: TOOL_LABELS_MAP[rule.toolB],
+        capability: rule.capability,
+        recommendation: rule.recommendation,
+        keepTool: rule.keepTool,
+        keepToolLabel: rule.keepToolLabel,
+        combinedSpend: spendA + spendB,
+        severity: rule.severity,
+      });
+    }
+  }
+
+  // Sort: high severity first
+  return results.sort((a, b) => (a.severity === 'high' && b.severity !== 'high' ? -1 : 1));
+}

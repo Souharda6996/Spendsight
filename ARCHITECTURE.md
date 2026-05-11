@@ -69,6 +69,7 @@ create table audits (
   total_monthly_savings numeric not null,
   total_annual_savings numeric not null,
   ai_summary text,
+  overlap_results jsonb default '[]',
   created_at timestamptz default now()
 );
 

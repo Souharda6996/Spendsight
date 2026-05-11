@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase';
 import { AuditResult } from '@/types';
 import { AuditHero } from '@/components/audit/AuditHero';
 import ToolBreakdown from '@/components/audit/ToolBreakdown';
+import OverlapDetector from '@/components/audit/OverlapDetector';
 import { AISummary } from '@/components/audit/AISummary';
 import CredexCTA from '@/components/audit/CredexCTA';
 import ShareButton from '@/components/audit/ShareButton';
@@ -32,6 +33,7 @@ async function getAudit(id: string): Promise<AuditResult | null> {
       totalMonthlySavings: data.total_monthly_savings,
       totalAnnualSavings: data.total_annual_savings,
       aiSummary: data.ai_summary,
+      overlapResults: data.overlap_results ?? [],
       createdAt: data.created_at,
     };
   } catch {
@@ -133,6 +135,15 @@ export default async function AuditPage({ params }: AuditPageProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div className="badge-accent" style={{ alignSelf: 'flex-start' }}>Tool Breakdown</div>
               <ToolBreakdown toolResults={audit.toolResults} />
+
+              {audit.overlapResults && audit.overlapResults.length > 0 && (
+                <>
+                  <div className="badge-accent" style={{ alignSelf: 'flex-start', background: 'rgba(239,68,68,0.15)', color: '#f87171', borderColor: 'rgba(239,68,68,0.3)' }}>
+                    ⚠ Overlap Detected
+                  </div>
+                  <OverlapDetector overlaps={audit.overlapResults} />
+                </>
+              )}
             </div>
 
             {/* Right Column */}
