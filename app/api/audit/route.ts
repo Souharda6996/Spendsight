@@ -62,7 +62,9 @@ export async function POST(request: NextRequest) {
     const createdAt = new Date().toISOString();
 
     const supabase = createServerSupabaseClient();
-    const { error } = await supabase.from('audits').insert({
+
+    // Try inserting with overlap_results (requires ALTER TABLE if column is new)
+    let { error } = await supabase.from('audits').insert({
       id,
       form_data: formData,
       tool_results: toolResults,
@@ -72,6 +74,20 @@ export async function POST(request: NextRequest) {
       overlap_results: overlapResults,
       created_at: createdAt,
     });
+
+    // Fallback: if overlap_results column doesn't exist yet, insert without it
+    if (error && error.message?.includes('overlap_results')) {
+      console.warn('overlap_results column missing — inserting without it:', error.message);
+      ({ error } = await supabase.from('audits').insert({
+        id,
+        form_data: formData,
+        tool_results: toolResults,
+        total_monthly_savings: totalMonthlySavings,
+        total_annual_savings: totalAnnualSavings,
+        ai_summary: aiSummary,
+        created_at: createdAt,
+      }));
+    }
 
     if (error) {
       console.error('Supabase insert error:', error);
