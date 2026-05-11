@@ -275,7 +275,6 @@ See [TESTS.md](./TESTS.md) for full descriptions.
 
 <div align="center">
 
-Built for the **Credex Web Development Intern Assignment** · May 2026  
-*"Ship something real. Then tell us how you built it."*
+ **⚡ SpendSight** 
 
 </div>
