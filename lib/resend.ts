@@ -9,7 +9,9 @@ export async function sendAuditEmail(params: {
   auditId: string;
 }): Promise<void> {
   const { to, totalMonthlySavings, topRecommendations, auditId } = params;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://spendsight.vercel.app';
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://spendsight-chi.vercel.app')
+    .replace('localhost:3000', 'spendsight-chi.vercel.app')
+    .replace('http://', 'https://');
 
   const html = `
 <!DOCTYPE html>
