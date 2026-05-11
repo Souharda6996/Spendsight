@@ -5,11 +5,13 @@ import { AuditResult } from '@/types';
 import { AuditHero } from '@/components/audit/AuditHero';
 import ToolBreakdown from '@/components/audit/ToolBreakdown';
 import OverlapDetector from '@/components/audit/OverlapDetector';
+import StackScoreBadge from '@/components/audit/StackScoreBadge';
 import { AISummary } from '@/components/audit/AISummary';
 import CredexCTA from '@/components/audit/CredexCTA';
 import ShareButton from '@/components/audit/ShareButton';
 import LeadCaptureModal from '@/components/lead/LeadCaptureModal';
 import Link from 'next/link';
+import { calculateStackScore } from '@/lib/stack-score';
 
 interface AuditPageProps {
   params: Promise<{ id: string }>;
@@ -76,6 +78,10 @@ export default async function AuditPage({ params }: AuditPageProps) {
   }
 
   const showCredexCTA = audit.totalMonthlySavings > 500;
+  const stackScore = calculateStackScore(
+    audit.toolResults,
+    audit.overlapResults ?? [],
+  );
 
   return (
     <div className="relative min-h-screen overflow-hidden" style={{ background: 'var(--bg-base)' }}>
@@ -124,6 +130,9 @@ export default async function AuditPage({ params }: AuditPageProps) {
             totalMonthlySavings={audit.totalMonthlySavings}
             totalAnnualSavings={audit.totalAnnualSavings}
           />
+
+          {/* 2. Stack Score */}
+          <StackScoreBadge stackScore={stackScore} />
 
           {/* 2. Main content grid */}
           <div style={{
