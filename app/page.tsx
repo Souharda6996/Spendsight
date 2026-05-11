@@ -1,13 +1,49 @@
 'use client';
+import { useEffect, useRef, useState } from 'react';
 import SpendForm from '@/components/form/SpendForm';
 
 export default function HomePage() {
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: -999, y: -999 });
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', onMove, { passive: true });
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
+  useEffect(() => {
+    if (spotlightRef.current) {
+      spotlightRef.current.style.transform =
+        `translate(${mousePos.x - 300}px, ${mousePos.y - 300}px)`;
+    }
+  }, [mousePos]);
+
   const scrollToForm = () => {
     document.getElementById('audit-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <div className="relative min-h-screen overflow-hidden" style={{ background: 'var(--bg-base)' }}>
+      {/* Mouse-follow spotlight */}
+      <div
+        ref={spotlightRef}
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          width: '600px',
+          height: '600px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(0,200,150,0.06) 0%, transparent 65%)',
+          pointerEvents: 'none',
+          zIndex: 1,
+          transition: 'transform 0.12s ease-out',
+          willChange: 'transform',
+          top: 0,
+          left: 0,
+        }}
+      />
+
       {/* Mesh gradient orbs */}
       <div aria-hidden="true" style={{
         position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
@@ -15,16 +51,18 @@ export default function HomePage() {
         <div style={{
           position: 'absolute', top: '10%', right: '10%',
           width: '600px', height: '600px',
-          background: 'radial-gradient(circle, rgba(0,200,150,0.12) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(0,200,150,0.13) 0%, transparent 70%)',
           filter: 'blur(80px)',
           borderRadius: '50%',
+          animation: 'orbDrift 18s ease-in-out infinite',
         }} />
         <div style={{
           position: 'absolute', bottom: '20%', left: '5%',
           width: '400px', height: '400px',
-          background: 'radial-gradient(circle, rgba(0,152,212,0.10) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(0,152,212,0.11) 0%, transparent 70%)',
           filter: 'blur(100px)',
           borderRadius: '50%',
+          animation: 'orbDriftAlt 22s ease-in-out infinite',
         }} />
       </div>
 
@@ -54,10 +92,12 @@ export default function HomePage() {
             }}>
               Stop overpaying<br />
               <span style={{
-                background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-blue) 100%)',
+                background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-blue) 50%, var(--accent) 100%)',
+                backgroundSize: '200% auto',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
+                animation: 'gradientShift 4s linear infinite',
               }}>for AI tools.</span>
             </h1>
 
@@ -104,11 +144,11 @@ export default function HomePage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             {[
-              { name: 'Cursor', icon: '/logos/cursor.png', color: '#8B5CF6', delay: '0s', top: '8%', left: '20%', dur: '6s' },
-              { name: 'Claude', icon: '/logos/claude.png', color: '#E05A2B', delay: '1.2s', top: '5%', right: '10%', dur: '7s' },
-              { name: 'ChatGPT', icon: '/logos/chatgpt.png', color: '#10A37F', delay: '0.6s', top: '45%', left: '5%', dur: '5.5s' },
-              { name: 'Copilot', icon: '/logos/copilot.png', color: '#0078D4', delay: '1.8s', top: '55%', right: '5%', dur: '6.5s' },
-              { name: 'Gemini', icon: '/logos/gemini.png', color: '#4285F4', delay: '0.9s', bottom: '10%', left: '30%', dur: '7.5s' },
+              { name: 'Cursor',  icon: '/logos/cursor.png',  color: '#8B5CF6', delay: '0s',   top: '8%',  left: '20%',  dur: '6s' },
+              { name: 'Claude',  icon: '/logos/claude.png',  color: '#E05A2B', delay: '1.2s', top: '5%',  right: '10%', dur: '7s' },
+              { name: 'ChatGPT', icon: '/logos/chatgpt.png', color: '#10A37F', delay: '0.6s', top: '45%', left: '5%',   dur: '5.5s' },
+              { name: 'Copilot', icon: '/logos/copilot.png', color: '#0078D4', delay: '1.8s', top: '55%', right: '5%',  dur: '6.5s' },
+              { name: 'Gemini',  icon: '/logos/gemini.png',  color: '#4285F4', delay: '0.9s', bottom: '10%', left: '30%', dur: '7.5s' },
             ].map((tool) => (
               <div key={tool.name} style={{
                 position: 'absolute',
@@ -122,21 +162,32 @@ export default function HomePage() {
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: '10px',
                   padding: '12px 18px',
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.09)',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: `1px solid ${tool.color}30`,
                   borderRadius: '14px',
                   backdropFilter: 'blur(12px)',
-                  boxShadow: '0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
+                  boxShadow: `0 4px 24px rgba(0,0,0,0.5), 0 0 16px ${tool.color}20, inset 0 1px 0 rgba(255,255,255,0.08)`,
                   whiteSpace: 'nowrap',
+                  transition: 'box-shadow 0.3s ease',
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}>
-                  <img 
-                    src={tool.icon} 
-                    alt="" 
-                    style={{ 
-                      width: '18px', height: '18px', 
+                  {/* Shimmer sweep */}
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)',
+                    backgroundSize: '200% 100%',
+                    animation: `shimmer 3s ease-in-out ${tool.delay} infinite`,
+                    pointerEvents: 'none',
+                  }} />
+                  <img
+                    src={tool.icon}
+                    alt=""
+                    style={{
+                      width: '18px', height: '18px',
                       objectFit: 'contain',
-                      filter: tool.name === 'ChatGPT' ? 'brightness(1.2)' : 'none'
-                    }} 
+                      filter: tool.name === 'ChatGPT' ? 'brightness(1.2)' : 'none',
+                    }}
                   />
                   <span style={{
                     fontFamily: 'var(--font-body)',
@@ -144,15 +195,24 @@ export default function HomePage() {
                     fontWeight: 500,
                     color: 'var(--text-primary)',
                   }}>{tool.name}</span>
+                  {/* Coloured dot */}
+                  <span style={{
+                    width: '6px', height: '6px',
+                    borderRadius: '50%',
+                    background: tool.color,
+                    boxShadow: `0 0 6px ${tool.color}`,
+                    flexShrink: 0,
+                    animation: 'pulseDot 2s ease-in-out infinite',
+                  }} />
                 </div>
               </div>
             ))}
-            
+
             <div style={{
               width: '200px', height: '200px',
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(0,200,150,0.08) 0%, transparent 70%)',
-              border: '1px solid rgba(0,200,150,0.12)',
+              background: 'radial-gradient(circle, rgba(0,200,150,0.10) 0%, transparent 70%)',
+              border: '1px solid rgba(0,200,150,0.15)',
               animation: 'pulseGlow 4s ease-in-out infinite',
             }} />
           </div>
