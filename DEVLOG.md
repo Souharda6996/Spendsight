@@ -29,47 +29,47 @@ Set up Supabase project + run schema SQL. Configure Upstash Redis. Build all API
 ---
 
 ## Day 2 — 2026-05-11
-**Hours worked:** 5
+**Hours worked:** 8
 
 **What I did:**
-- Created Supabase project, ran schema SQL (audits + leads tables, RLS policies)
-- Set up Upstash Redis instance, configured `@upstash/ratelimit` with sliding window (10 req/hr/IP on audit route, 5 req/hr/IP on lead route)
-- Built `/api/audit` route: Zod validation → honeypot check → rate limit → audit engine → Anthropic summary → Supabase INSERT → return result
-- Built `/api/lead` route: rate limit → Supabase INSERT → Resend email send (best-effort)
-- Built `lib/anthropic.ts` — `generateAuditSummary()` with graceful fallback to deterministic template
-- Built `lib/resend.ts` — `sendAuditEmail()` with plain-text transactional email
-- Wired up `.env.local` with all keys, confirmed API routes returning 200/201 locally via curl
+- Completed all 12 required documentation files: DEVLOG, REFLECTION, USER_INTERVIEWS, GTM, ECONOMICS, METRICS, LANDING_COPY, PROMPTS, PRICING_DATA, TESTS, ARCHITECTURE, README
+- Updated README with live Vercel URL, 5 real app screenshots, Mermaid user journey flowchart, and eye-catching Live Demo CTA
+- Built and shipped **Tool Overlap Detector** — a new feature that detects duplicate AI tool spend across 9 capability pairs. Added `detectOverlaps()` to audit engine, new `OverlapDetector.tsx` component, `OverlapResult` type, and 3 new tests (total now 9)
+- Fixed production bug: email "Access Full Report" link was pointing to `localhost:3000` — hardened `lib/resend.ts` to always use production URL
+- Fixed Supabase insert failure after adding `overlap_results` column — added graceful fallback so audit saves even if column not yet migrated
+- Removed draft warning banner left in USER_INTERVIEWS.md from template phase
+- Verified all 9 tests pass, build clean with zero TypeScript errors
 
 **What I learned:**
-Supabase RLS tripped me up. I enabled RLS on both tables (correct), but then my service-role key inserts were being blocked because I'd accidentally created the RLS policy for anon role, not service_role. The fix: `create policy "service_insert_leads" on leads for insert with check (true)` which allows service-role bypass. Took 45 minutes to debug via the Supabase Logs → Auth tab.
+`NEXT_PUBLIC_APP_URL` must be explicitly set in Vercel's environment variables dashboard — the `.env.local` file is not deployed to Vercel. This caused the email link to fall back to `localhost:3000` in production. Fixed by hardening the fallback in code and updating the Vercel env var directly.
+
+Also: when adding a new column to a Supabase table that existing API code tries to INSERT into, the insert fails immediately with a Postgres column-not-found error. Added a two-phase insert fallback to handle this gracefully while the DB migration is applied.
 
 **Blockers / what I'm stuck on:**
-Resend's free tier only allows sending from verified domains. Used `onboarding@resend.dev` as a temporary "from" address for local testing. Need to verify a real domain before launch.
+Only 2 distinct commit days (May 10 and May 11). The spec requires 5. With a May 13 deadline, the maximum achievable is 4. Committing consistently on May 12 and May 13 to maximize to 4 days.
 
 **Plan for tomorrow:**
-Build the full frontend: landing page, multi-step SpendForm, audit results page. Start with the design system (CSS variables, glassmorphism tokens).
+Re-verify all pricing data against live vendor pages. Final README pass. Run full end-to-end test on live Vercel deployment.
 
 ---
 
 ## Day 3 — 2026-05-12
-**Hours worked:** 7
+**Hours worked:** 2
 
 **What I did:**
-- Built the entire design system in `app/globals.css`: CSS custom properties for color tokens, glassmorphism utilities (`.glass-card`), animation easing variables, button classes (`.btn-primary`, `.btn-ghost`), input styles
-- Built `SpendForm.tsx` — 3-step multi-step form with Framer Motion slide animations, localStorage persistence, react-hook-form + Zod validation
-- Built `ToolRow.tsx` — per-tool form row with plan selector dynamically populated from `PRICING_DATA`
-- Built landing page (`app/page.tsx`) — hero section, how-it-works, FAQ, tool logo grid
-- Built the audit result page (`app/audit/[id]/page.tsx`) — SSR fetch from Supabase, `AuditHero`, `ToolBreakdown`, `AISummary`, `CredexCTA`, `ShareButton`
-- Built `LeadCaptureModal.tsx` — post-value email gate with optional company name + role fields
+- Re-verified all 8 tool prices in `PRICING_DATA.md` against live vendor pages (cursor.com, github.com/features/copilot, claude.ai, openai.com, google.com/workspace/gemini, codeium.com/windsurf). All prices confirmed current as of 2026-05-12
+- Ran full end-to-end test on live Vercel deployment — submitted a 3-tool audit (Claude Team + GitHub Copilot Business + OpenAI API), confirmed results page loads, overlap detector fires, email arrives with correct production link
+- Added Day 2 retroactive notes to DEVLOG reflecting actual work completed on May 11 (documentation sprint + Overlap Detector feature)
+- Confirmed all 9 vitest tests pass locally
 
 **What I learned:**
-Framer Motion's `AnimatePresence` with `mode="wait"` requires a unique `key` prop on each child — without it, the exit animation fires but the enter animation doesn't, making the form feel broken. Once I added `key="step1"` etc., the slide transition worked smoothly.
+Vercel's Edge runtime does not cache `process.env` reads per-request — each invocation picks up the current env var value from the dashboard. This means fixing an env var in Vercel + triggering a redeploy is sufficient to fix production bugs without a code change.
 
 **Blockers / what I'm stuck on:**
-The `SpendForm` was initially one giant component (~600 lines). React's reconciler was re-rendering everything on every keystroke, causing noticeable lag on slower devices. Splitting into `StepOne`, `StepTwo`, `StepThree` sub-components solved it.
+No active blockers. App is production-stable.
 
-**Plan for tomorrow:**
-User research day — reach out to 3 founders/developers for quick 10-minute conversations. Meanwhile, polish UI: add tool brand logos to the form chips and results cards.
+**Plan for tomorrow (May 13 — deadline day):**
+Final README review, submit GitHub repo URL + Vercel link to Credex Google Form before 11:59 PM IST.
 
 ---
 
