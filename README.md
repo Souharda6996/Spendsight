@@ -19,7 +19,7 @@ Input your AI subscriptions. Get an instant breakdown of overspend, plan mismatc
 
 <br><br>
 
-[![Tests](https://img.shields.io/badge/Tests-6%20passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)](/__tests__/audit-engine.test.ts)
+[![Tests](https://img.shields.io/badge/Tests-9%20passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)](/__tests__/audit-engine.test.ts)
 [![CI](https://img.shields.io/badge/CI-GitHub%20Actions-passing-22c55e?style=for-the-badge&logo=github-actions&logoColor=white)](.github/workflows/ci.yml)
 [![Stack](https://img.shields.io/badge/Stack-Next.js%2014%20·%20TypeScript%20·%20Supabase-0ea5e9?style=for-the-badge)](ARCHITECTURE.md)
 [![Lighthouse](https://img.shields.io/badge/Lighthouse-Performance%2091%20·%20A11y%2094-f97316?style=for-the-badge&logo=lighthouse&logoColor=white)](https://spendsight-chi.vercel.app/)
@@ -39,6 +39,8 @@ SpendSight audits your team's AI subscription stack — Cursor, Claude, ChatGPT,
 - ✅ Instant. Results in under 60 seconds.
 - ✅ Shareable. Every audit gets a unique public URL — forward it to your CTO or finance lead.
 - ✅ Honest. If your stack is already optimized, we say that clearly instead of inventing fake savings.
+- 🆕 **Stack Score** — every result gets an A–F letter grade so you know at a glance how efficient your stack is.
+- 🆕 **Overlap Detector** — identifies duplicate capability spend (e.g., paying for both Cursor AND GitHub Copilot).
 
 ---
 
@@ -131,6 +133,8 @@ Your Input  →  5 Hardcoded Rules  →  Instant Results
 | **Rule 3** | Wrong tool for your use case (e.g., ChatGPT Plus for a coding team → Cursor) |
 | **Rule 4** | High total spend → surfaces Credex credit sourcing option |
 | **Rule 5** | Already optimal — says so clearly |
+| **Overlap Detector** | Pair-wise capability comparison across 9 known tool overlaps — flags duplicate spend with severity score |
+| **Stack Score** | A–F letter grade computed from waste % + overlap count — shareable in one character |
 
 The **AI** (Claude Sonnet) only writes the ~100-word narrative summary. The math is never touched by an LLM.
 

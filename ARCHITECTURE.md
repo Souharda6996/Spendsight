@@ -33,12 +33,14 @@ FormData (client)
   → Honeypot check (body.website must be absent)
   → runAuditEngine(formData) → ToolAuditResult[]
   → calculateTotals() → { totalMonthlySavings, totalAnnualSavings }
+  → detectOverlaps(tools) → OverlapResult[]         ← NEW v1.1
   → generateAuditSummary() via Anthropic API (or fallback string)
-  → Supabase INSERT audits
+  → Supabase INSERT audits (incl. overlap_results jsonb)
   → nanoid(10) → audit ID
   → Return AuditResult JSON to client
   → client router.push('/audit/{id}')
   → SSR: fetch audit from Supabase → render page with dynamic OG meta
+  → calculateStackScore(toolResults, overlapResults) → StackScore  ← NEW v1.1 (client-side, no DB)
 ```
 
 ---
