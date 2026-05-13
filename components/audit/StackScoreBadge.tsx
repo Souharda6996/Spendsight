@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StackScore } from '@/lib/stack-score';
 
 interface StackScoreBadgeProps {
@@ -9,6 +9,15 @@ interface StackScoreBadgeProps {
 export default function StackScoreBadge({ stackScore }: StackScoreBadgeProps) {
   const arcRef = useRef<SVGCircleElement>(null);
   const scoreNumRef = useRef<HTMLSpanElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleShareGrade = () => {
+    const text = `My AI stack scored a ${stackScore.grade} (${stackScore.score}/100) on SpendSight — free audit for your team: https://spendsight-chi.vercel.app`;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
@@ -147,8 +156,8 @@ export default function StackScoreBadge({ stackScore }: StackScoreBadgeProps) {
           {stackScore.description}
         </p>
 
-        {/* Mini stat pills */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        {/* Mini stat pills + Share button */}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: '6px',
             padding: '6px 12px',
@@ -204,6 +213,40 @@ export default function StackScoreBadge({ stackScore }: StackScoreBadgeProps) {
               </span>
             </div>
           )}
+
+          {/* Share Grade button */}
+          <button
+            onClick={handleShareGrade}
+            title="Copy shareable grade to clipboard"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '6px 14px',
+              background: copied ? `${stackScore.color}20` : 'transparent',
+              border: `1px solid ${copied ? stackScore.color : 'var(--border-default)'}`,
+              borderRadius: '8px',
+              cursor: 'pointer',
+              color: copied ? stackScore.color : 'var(--text-secondary)',
+              fontSize: '12px',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 500,
+              transition: 'all 0.2s ease',
+              marginLeft: 'auto',
+            }}
+          >
+            {copied ? (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                Copied!
+              </>
+            ) : (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                Share Grade
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

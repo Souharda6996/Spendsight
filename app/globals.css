@@ -285,6 +285,11 @@ body::after {
   50%       { box-shadow: 0 0 40px rgba(0,200,150,0.22); }
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
 .anim-fade-up {
   opacity: 0;
   animation: fadeUp 0.7s var(--ease-out) forwards;

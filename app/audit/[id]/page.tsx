@@ -129,6 +129,7 @@ export default async function AuditPage({ params }: AuditPageProps) {
           <AuditHero
             totalMonthlySavings={audit.totalMonthlySavings}
             totalAnnualSavings={audit.totalAnnualSavings}
+            totalCurrentSpend={stackScore.totalCurrentSpend}
           />
 
           {/* 2. Stack Score */}
