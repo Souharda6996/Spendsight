@@ -21,7 +21,7 @@ Input your AI subscriptions. Get an instant breakdown of overspend, plan mismatc
 
 [![Tests](https://img.shields.io/badge/Tests-9%20passing-22c55e?style=for-the-badge&logo=vitest&logoColor=white)](/__tests__/audit-engine.test.ts)
 [![CI](https://img.shields.io/badge/CI-GitHub%20Actions-passing-22c55e?style=for-the-badge&logo=github-actions&logoColor=white)](.github/workflows/ci.yml)
-[![Stack](https://img.shields.io/badge/Stack-Next.js%2014%20·%20TypeScript%20·%20Supabase-0ea5e9?style=for-the-badge)](ARCHITECTURE.md)
+[![Stack](https://img.shields.io/badge/Stack-Next.js%2016%20·%20TypeScript%20·%20Supabase-0ea5e9?style=for-the-badge)](ARCHITECTURE.md)
 [![Lighthouse](https://img.shields.io/badge/Lighthouse-Performance%2091%20·%20A11y%2094-f97316?style=for-the-badge&logo=lighthouse&logoColor=white)](https://spendsight-chi.vercel.app/)
 
 </div>

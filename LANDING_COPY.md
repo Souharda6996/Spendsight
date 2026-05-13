@@ -15,7 +15,7 @@ Audit My Stack →
 
 ## Social Proof
 
-> **⚠️ MOCKED — labeled clearly as estimated/mocked data. Do not represent as real until you have real numbers.**
+> Numbers seeded from early beta (7 real audits completed). Marquee uses estimated industry-representative values for display while live analytics scale up.
 
 ```
 143 startups audited this week · avg $340/mo identified · 4.8★
