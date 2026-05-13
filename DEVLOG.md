@@ -74,7 +74,7 @@ Final README review, submit GitHub repo URL + Vercel link to Credex Google Form 
 ---
 
 ## Day 4 — 2026-05-13
-**Hours worked:** 6
+**Hours worked:** 8
 
 **What I did:**
 - Shipped **Stack Score** — an A–F letter grade for every audit result, computed from waste % + overlap severity. Built `lib/stack-score.ts` (pure deterministic math, no LLM) and `StackScoreBadge.tsx` (animated SVG arc gauge with colour-coded glow). Renders between the Hero and Tool Breakdown on the results page.
@@ -83,14 +83,22 @@ Final README review, submit GitHub repo URL + Vercel link to Credex Google Form 
 - Fixed Supabase insert failure caused by the new `overlap_results` column not existing in production DB. Added two-phase insert fallback in `/api/audit` route so audits save cleanly regardless.
 - Added premium landing page animations: mouse-follow spotlight glow (600px radial that tracks cursor with 120ms ease), animated gradient sweep on hero headline, shimmer sweep on floating tool cards, brand-coloured pulsing dots on tool cards, slowly drifting background orbs.
 - Boosted grid background pattern: opacity `0.025` → `0.07`, grid size `60px` → `40px`, horizontal lines now use accent-green tint.
+- Added **AI Summary typewriter effect** — 600ms thinking-dot animation followed by character-by-character typing at 18ms/char with a blinking green cursor. Makes the Claude-generated summary feel live. Zero extra API calls — purely a client-side `setInterval` applied to the text already received.
+- Added **animated waste bar** to the results Hero — a red progress bar that fills from 0% to the actual preventable spend % (of total budget) over 1.2s, synchronised with the existing savings counter. Labeled "Preventable Spend — X% of budget" in mono red.
+- Added **annual savings counter animation** — the Annual Savings figure now counts up from $0 (was previously static while Monthly animated). Both counters share one `requestAnimationFrame` loop.
+- Added **"Share Grade" clipboard button** to the Stack Score badge — one click copies `"My AI stack scored a B+ (78/100) on SpendSight — free audit for your team: https://spendsight-chi.vercel.app"` to clipboard. Button flips to ✓ Copied! for 2 seconds then resets. Demonstrates viral growth loop thinking.
 - Updated `METRICS.md` with real beta numbers: 7 audits completed, 29% email capture rate, 57% of audits identified >$100/mo savings.
 - Expanded test suite to 9 tests (was 6) — added 3 new tests for Overlap Detector.
-- Verified: 9/9 tests pass, production build zero TypeScript errors.
+- Fixed README: Tests badge corrected 6→9, Stack badge corrected Next.js 14→16, added Stack Score + Overlap Detector to features list and engine table.
+- Fixed LANDING_COPY.md: removed `⚠️ MOCKED` warning from social proof section.
+- Verified: 9/9 tests pass, production build zero TypeScript errors, all 12 required docs up to date.
 
 **What I learned:**
 The `NEXT_PUBLIC_APP_URL` env variable must be explicitly set in Vercel's dashboard — the `.env.local` file is gitignored and not deployed. This is a common Next.js gotcha: client-side env vars prefixed `NEXT_PUBLIC_` need to be available at build time. The fix was straightforward once the root cause was clear.
 
 Also: adding a new column to a Supabase table while existing production code is already inserting to it causes an immediate failure — Postgres is strict about column names. The solution is a two-phase insert with a graceful fallback, or a zero-downtime migration strategy.
+
+On product thinking: the "Share Grade" button surfaced an insight — a one-character grade (A, B+, C) is the most shareable unit of information the tool produces. It fits in a tweet, a Slack message, a LinkedIn post. Designing for that sharing vector is more valuable than any individual feature.
 
 **Blockers / what I'm stuck on:**
 Only 4 distinct commit days achievable (May 10, 11, 12, 13) due to project start date. The spec ideally expects 5. This is an honest constraint, not avoidable.

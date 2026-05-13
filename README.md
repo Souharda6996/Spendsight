@@ -39,8 +39,11 @@ SpendSight audits your team's AI subscription stack — Cursor, Claude, ChatGPT,
 - ✅ Instant. Results in under 60 seconds.
 - ✅ Shareable. Every audit gets a unique public URL — forward it to your CTO or finance lead.
 - ✅ Honest. If your stack is already optimized, we say that clearly instead of inventing fake savings.
-- 🆕 **Stack Score** — every result gets an A–F letter grade so you know at a glance how efficient your stack is.
+- 🆕 **Stack Score** — every result gets an A–F letter grade (animated SVG arc gauge) shareable in one character.
 - 🆕 **Overlap Detector** — identifies duplicate capability spend (e.g., paying for both Cursor AND GitHub Copilot).
+- 🆕 **AI Typewriter** — Claude’s summary types itself live with a blinking cursor so results feel generated, not static.
+- 🆕 **Waste Bar** — an animated red bar shows what % of your total AI budget is preventable waste.
+- 🆕 **Share Grade** — one click copies your grade + link to clipboard for instant team sharing.
 
 ---
 
@@ -80,9 +83,10 @@ flowchart TD
     Q --> R["🔀 router.push('/audit/id')"]
 
     R --> S["📊 SSR Results Page\n/audit/[id] — fetched from Supabase"]
-    S --> S1["🏆 Hero: Total Monthly + Annual Savings"]
+    S --> S0["🏆 Hero: Animated savings counter + waste bar"]
+    S --> S1["🎯 Stack Score: A–F grade + SVG arc gauge"]
     S --> S2["🧰 Tool Breakdown Cards\nper-tool: current → recommended → saves"]
-    S --> S3["🤖 AI Summary paragraph"]
+    S --> S3["🤖 AI Summary — typewriter effect (18ms/char)"]
 
     S --> T{"Total savings > $500/mo?"}
     T -->|"Yes"| U["💚 Credex CTA\n'You qualify for credits\nBook free consultation →'"]
@@ -137,6 +141,17 @@ Your Input  →  5 Hardcoded Rules  →  Instant Results
 | **Stack Score** | A–F letter grade computed from waste % + overlap count — shareable in one character |
 
 The **AI** (Claude Sonnet) only writes the ~100-word narrative summary. The math is never touched by an LLM.
+
+### 🎨 UI Polish (v1.1 — Day 4)
+
+| Feature | What it does |
+|---|---|
+| **AI Typewriter** | Claude summary types char-by-char with thinking dots + blinking cursor |
+| **Animated Waste Bar** | Red progress bar fills from 0% to preventable spend %, synced with savings counter |
+| **Annual Savings Counter** | Both monthly and annual figures animate up from $0 simultaneously |
+| **Share Grade Button** | One click copies shareable grade text to clipboard with ✓ feedback |
+| **Mouse Spotlight** | 600px radial glow that follows cursor across landing page |
+| **Tool Card Shimmer** | Light sweep + brand-coloured pulse dot on each floating tool card |
 
 ---
 
